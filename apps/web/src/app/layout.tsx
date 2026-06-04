@@ -3,6 +3,7 @@ import { Inter,DM_Serif_Display  } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/ThemeProvider/theme-provider";
+import { ClerkProvider } from "@clerk/nextjs";
 
 export const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -34,20 +35,21 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", fontDisplay.variable, "font-sans", inter.variable)}  
       suppressHydrationWarning
     >
-      
-      <body 
-      className="min-h-full flex flex-col"
-      suppressHydrationWarning
-      >
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-          {children}
-          </ThemeProvider>
-      </body>
+      <ClerkProvider>
+        <body 
+        className="min-h-full flex flex-col"
+        suppressHydrationWarning
+        >
+          <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+            {children}
+            </ThemeProvider>
+        </body>
+      </ClerkProvider>
     </html>
   );
 }
