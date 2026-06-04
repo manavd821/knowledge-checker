@@ -1,5 +1,5 @@
 import pino from "pino";
-import { getRequestContext } from "./request-contexts";
+import { getRequestContext } from "@/lib/logging/request-contexts";
 
 const logger = pino({
     level : process.env.NODE_ENV || "info",
@@ -24,5 +24,8 @@ export class Logger{
     }
     fatal(msg? : string, data?: object){
         logger.fatal({...data}, msg);
+    }
+    debug(msg? : string, data?: object){
+        logger.debug({...data}, msg);
     }
 }
