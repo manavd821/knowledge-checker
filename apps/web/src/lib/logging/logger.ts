@@ -28,4 +28,7 @@ export class Logger{
     fatal(msg? : string, data?: object){
         logger.fatal({...data}, msg);
     }
+    debug(msg? : string, data?: object){
+        logger.debug({...data}, msg);
+    }
 }
