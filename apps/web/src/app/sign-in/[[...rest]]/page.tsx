@@ -1,6 +1,6 @@
 "use client";
 import { SignIn } from "@clerk/nextjs";
-import { clerkAppearanceLight, clerkAppearanceDark } from "@/lib/clerk-appearance";
+import { clerkAppearanceLight, clerkAppearanceDark } from "@/lib/clerk/clerk-appearance";
 import { useTheme } from "next-themes";
 
 export default function Page() {

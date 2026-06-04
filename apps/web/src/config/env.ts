@@ -11,10 +11,10 @@ const envSchema = z.object({
     NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL :  z.string().min(1),
     NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL :  z.string().min(1),
     CLERK_WEBHOOK_SIGNING_SECRET :  z.string().min(1),
-    DATABASE_URL :  z.url()
+    DATABASE_URL :  z.url().nonempty()
 });
 
-let env : z.infer<typeof envSchema>;
+let env = envSchema.parse(process.env);
 
 export const validateEnv = () => {
     logger.info("verifying env variables...");
