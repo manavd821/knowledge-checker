@@ -1,8 +1,8 @@
 import { createUserWebhookSchema } from "@/lib/db/api/schema/users";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { Logger } from "@/lib/logging/logger";
-import { ServerError } from "@/exceptions/ServerError";
 import { createUser } from "@/lib/db/api/queries/users";
+import { ValidationError } from "@/exceptions/ValidationError";
 
 
 export const handleUserCreate = async (evt : WebhookEvent) => {
@@ -16,7 +16,11 @@ export const handleUserCreate = async (evt : WebhookEvent) => {
                 issues : res.error.issues,
             }
         );
-        throw new ServerError("Failed to validate Clerk webhook payload");
+        throw new ValidationError(
+            "request payload Validation failed",
+            res.error.issues,
+            422,
+        );
     }
     
     await createUser(res.data);

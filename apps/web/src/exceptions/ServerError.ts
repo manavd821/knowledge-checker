@@ -2,9 +2,9 @@ import { AppError } from "@/exceptions/AppError";
 
 export class ServerError extends AppError{
     status_code = 500;
-
-    constructor(message: string, status_code? : number){
-        super(message)
+    expose = false;
+    constructor(message: string, status_code? : number, code = "SERVER_ERROR"){
+        super(message, code)
         this.status_code = status_code || this.status_code;
     }
 }

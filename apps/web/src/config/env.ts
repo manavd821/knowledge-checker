@@ -11,7 +11,8 @@ const envSchema = z.object({
     NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL :  z.string().min(1),
     NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL :  z.string().min(1),
     CLERK_WEBHOOK_SIGNING_SECRET :  z.string().min(1),
-    DATABASE_URL :  z.url().nonempty()
+    DATABASE_URL :  z.url().nonempty(),
+    LOG_LEVEL : z.string().min(1).nonempty(),
 });
 
 let env = envSchema.parse(process.env);

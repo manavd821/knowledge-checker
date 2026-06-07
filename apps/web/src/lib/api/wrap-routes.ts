@@ -3,6 +3,7 @@ import { request_context } from "@/lib/logging/request-contexts";
 import { Logger } from "@/lib/logging/logger";
 import { ClientError } from "@/exceptions/ClientError";
 import { ServerError } from "@/exceptions/ServerError";
+import { ValidationError } from "@/exceptions/ValidationError";
 
 export const withRequestContextAndErrorHandling = 
     async (handler : (req : NextRequest) => Promise<Response>) => {
@@ -20,23 +21,20 @@ export const withRequestContextAndErrorHandling =
                     return await handler(req);
                 } catch (error) {
                     if(error instanceof ServerError){
-                        logger.warn(error.message);
-                        return NextResponse.json(
-                            { 
-                            success : false,
-                            message : "Internal Server Error",
-                            status_code : error.status_code,
-                        },
-                    );
+                        logger.warn(error.message, {
+                            ...error
+                        });
+                        return NextResponse.json(error.toJSON());
+                    }
+                    else if(error instanceof ValidationError){
+                        logger.info("Validation error",{
+                            issues : error.issues,
+                        });
+                        return NextResponse.json(error.toJSON());
                     }
                     else if(error instanceof ClientError){
-                        logger.info(error.message);
-                        return NextResponse.json({
-                            success : false,
-                            message : error.message,
-                            status_code : error.status_code
-                        },
-                    )
+                        logger.info(error.message, {...error});
+                        return NextResponse.json(error.toJSON());
                     }
                     else{
                         logger.error("Unexpected Error", {
@@ -45,6 +43,7 @@ export const withRequestContextAndErrorHandling =
 
                         return NextResponse.json({
                             success: false,
+                            code : "INTERNAL_SERVER_ERROR",
                             message: "Internal Server Error",
                             status_code : 500,
                         });
