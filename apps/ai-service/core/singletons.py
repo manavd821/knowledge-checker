@@ -1,6 +1,6 @@
 from functools import lru_cache
-from fastapi_app.config.settings import get_settings
-from fastapi_app.infrastructure import (
+from config.settings import get_settings
+from infrastructure import (
     Database,
     RedisClient,
 )

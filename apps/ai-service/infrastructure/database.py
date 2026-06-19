@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
 )
 from contextlib import asynccontextmanager
-from fastapi_app.infrastructure.logging import get_logger
+from infrastructure.logging import get_logger
 
 logger = get_logger(__name__)
 

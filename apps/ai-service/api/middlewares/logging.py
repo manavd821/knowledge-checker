@@ -1,5 +1,5 @@
+from infrastructure import get_logger
 from fastapi import Request, Response
-from fastapi_app.infrastructure import get_logger
 import structlog
 import uuid
 import time

@@ -1,5 +1,5 @@
 from upstash_redis import AsyncRedis
-from fastapi_app.infrastructure.logging import get_logger
+from infrastructure.logging import get_logger
 
 logger = get_logger(__name__)
 class RedisClient:

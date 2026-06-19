@@ -4,10 +4,10 @@ from typing import (
 )
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi_app.core.singletons import (
+from core.singletons import (
     get_database,
 )
-from fastapi_app.infrastructure import Database
+from infrastructure import Database
 
 async def get_db_session(
     db : Annotated[Database, Depends(get_database)]

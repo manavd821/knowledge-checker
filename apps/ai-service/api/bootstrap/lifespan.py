@@ -1,20 +1,14 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from fastapi_app.config.settings import get_settings
-from fastapi_app.infrastructure import (
+from config.settings import get_settings
+from infrastructure import (
     configure_logging,
     get_logger,
 )
-from fastapi_app.core.singletons import (
-    get_redis_client,
-    get_database,
+from core.startup import (
+    check_infra_health,
 )
 
-async def check_infra_health():
-    db = get_database()
-    redis = get_redis_client()
-    await redis.healthcheck()
-    await db.healthcheck()
 
 @asynccontextmanager 
 async def lifespan(app : FastAPI):

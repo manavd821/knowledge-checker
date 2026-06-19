@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
-from fastapi_app.core.singletons import (
+from core.singletons import (
     get_database,
 )
 
