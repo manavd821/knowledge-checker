@@ -1,4 +1,4 @@
-from api.bootstrap.app_factory import create_app
+from fastapi_app.bootstrap.app_factory import create_app
 
 app = create_app()
 
