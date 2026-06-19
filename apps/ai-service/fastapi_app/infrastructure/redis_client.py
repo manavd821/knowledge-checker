@@ -1,0 +1,27 @@
+from upstash_redis import AsyncRedis
+from fastapi_app.infrastructure.logging import get_logger
+
+logger = get_logger(__name__)
+class RedisClient:
+    """Holds the Upstash Redis connection. One instance for the app"""
+    def __init__(self, connection_string : str, connection_token : str) -> None:
+        self._redis = AsyncRedis(
+            url = connection_string,
+            token = connection_token,
+        )
+    
+        logger.info("Redis client created")
+    
+    async def healthcheck(self):
+        assert await self._redis.ping() == "PONG"
+        logger.info("Upstash Redis db is healthy")
+    
+    async def get(self, key : str) -> str | None:
+        pass
+    
+    async def set(self, key : str) :
+        pass
+    
+    async def delete(self, key : str):
+        pass
+    
