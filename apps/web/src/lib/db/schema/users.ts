@@ -11,8 +11,12 @@ export const users = pgTable("users",
     email : text().notNull().unique(),
     first_name : text(),
     last_name : text(),
-    created_at : timestamp().notNull().defaultNow(),
-    updated_at : timestamp().notNull().defaultNow(),
+    created_at : timestamp({
+        withTimezone : true,
+    }).notNull().defaultNow(),
+    updated_at : timestamp({
+        withTimezone : true,
+    }).notNull().defaultNow(),
 },
     (table) => [
         index("users_user_id_idx")

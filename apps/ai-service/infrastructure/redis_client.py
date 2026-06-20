@@ -12,16 +12,11 @@ class RedisClient:
     
         logger.info("Redis client created")
     
+    @property
+    def client(self):
+        """Expose the raw Upstash client directly."""
+        return self._redis
+    
     async def healthcheck(self):
         assert await self._redis.ping() == "PONG"
         logger.info("Upstash Redis db is healthy")
-    
-    async def get(self, key : str) -> str | None:
-        pass
-    
-    async def set(self, key : str) :
-        pass
-    
-    async def delete(self, key : str):
-        pass
-    
