@@ -8,6 +8,11 @@ import {
     jsonb,
 } from "drizzle-orm/pg-core";
 import { sessions } from "@/lib/db/schema/sessions";
+import { 
+    Weak_Area,
+    Strong_Area,
+    Recommendation,
+} from "@/lib/db/types";
 
 export const evaluation_summaries = pgTable("evaluation_summaries",
 {
@@ -17,12 +22,12 @@ export const evaluation_summaries = pgTable("evaluation_summaries",
         .notNull()
         .unique(),
     overall_score : doublePrecision().notNull(),
-    strength_areas : jsonb(),
-    weak_areas : jsonb(),
+    strength_areas : jsonb().$type<Array<Strong_Area>>(),
+    weak_areas : jsonb().$type<Array<Weak_Area>>(),
 
     progression_notes : text(),
     detailed_feedback : text(),
-    recommendations : jsonb(),
+    recommendations : jsonb().$type<Array<Recommendation>>(),
 
     created_at : timestamp({
         withTimezone: true,

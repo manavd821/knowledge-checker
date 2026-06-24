@@ -1,18 +1,16 @@
-from sqlalchemy import exists
-
-from core.singletons import get_redis_client
-from exceptions.client import ClientError
 from infrastructure import (
     get_logger,
-    RedisClient
+    RedisClient,
 )
 from models import (
     SessionMeta,
     TurnState,
-    ContextCache,
+    SessionMeta,
+    TurnStateUpdate,
 )
-from models.sessions import TurnStateUpdate
-
+from exceptions.domain import (
+    TurnStateNotFound,
+)
 logger = get_logger(__name__)
 
 class CacheRepository:
@@ -65,7 +63,7 @@ class CacheRepository:
         
         exists = await self._redis.exists(key)
         if not exists:
-            raise ClientError("Turn state does not exists")
+            raise TurnStateNotFound(session_id)
         data = update.model_dump(
                 exclude_unset=True,
                 mode="json",
@@ -85,22 +83,9 @@ class CacheRepository:
         
         return TurnState.model_validate(data)
     
-    async def set_context_cache(
-        self,
-        session_id : str,
-        data : ContextCache,
-        ttl_seconds : int,
-    ) -> None:
-        key = f"session:{session_id}:context_cache"
-        
-        await self._redis.set(
-            key = key,
-            value=data.model_dump_json(),
-            ex = ttl_seconds
+    async def delete_session_keys(self, session_id: str) -> None:
+        key_prefix = f"session:{session_id}"
+        await self._redis.delete(
+            f"{key_prefix}:turn_state",
+            f"{key_prefix}:meta",
         )
-    
-    async def get_context_cache(self, session_id : str) -> ContextCache | None:
-        data = await self._redis.get(f"session:{session_id}:context_cache")
-        if not data:
-            return None
-        return  ContextCache.model_validate_json(data)

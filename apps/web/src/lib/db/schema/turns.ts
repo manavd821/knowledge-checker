@@ -59,6 +59,6 @@ export const turns = pgTable("turns",
         .on(table.session_id),
 
         uniqueIndex("session_turn_unique")
-        .on(table.session_id, table.turn_number),
+        .on(table.session_id, table.turn_number, table.speaker),
     ]
 )

@@ -3,7 +3,6 @@ import uuid
 from sqlalchemy import (
     DateTime,
     ForeignKey,
-    Enum,
     Index,
     func,
 )
@@ -12,7 +11,10 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
-from models.orm.base import Base
+from models.orm.base import (
+    Base,
+    pg_value_enum,
+)
 from models import (
     SessionType,
     STATUS,
@@ -44,29 +46,47 @@ class Session(Base):
         nullable=False,
     )
     status : Mapped[STATUS] = mapped_column(
-        Enum(STATUS),
+        pg_value_enum(
+            STATUS,
+            pg_name="status",
+        ),
         nullable=False,
         default=STATUS.PENDING.value
     )
     
     session_type : Mapped[SessionType] = mapped_column(
-        Enum(SessionType),
+        pg_value_enum(
+            SessionType,
+            pg_name="session_type",
+        ),
         nullable=False,
     )
     topic_type : Mapped[TopicType] = mapped_column(
-        Enum(TopicType),
+        pg_value_enum(
+            TopicType,
+            pg_name="topic_type",
+        ),
         nullable=False,
     )
     role_level : Mapped[RoleLevel] = mapped_column(
-        Enum(RoleLevel),
+        pg_value_enum(
+            RoleLevel,
+            pg_name="role_level",
+        ),
         nullable=False,
     )
     difficulty : Mapped[Difficulty] = mapped_column(
-        Enum(Difficulty),
+        pg_value_enum(
+            Difficulty,
+            pg_name="difficulty",
+        ),
         nullable=False,
     )
     domain : Mapped[Domain] = mapped_column(
-        Enum(Domain),
+        pg_value_enum(
+            Domain,
+            pg_name="domain",
+        ),
         nullable=False,
     )
     custom_domain : Mapped[str | None] = mapped_column(
@@ -76,7 +96,10 @@ class Session(Base):
         nullable=False,
     )
     ai_strictness : Mapped[AI_STRICTNESS] = mapped_column(
-        Enum(AI_STRICTNESS),
+        pg_value_enum(
+            AI_STRICTNESS,
+            pg_name="ai_strictness",
+        ),
         nullable=False,
     )
     realtime_transcript : Mapped[bool] = mapped_column(

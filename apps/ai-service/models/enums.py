@@ -59,3 +59,4 @@ class ContentType(str, Enum):
     SUMMARY = "summary"
     GREETING = "greeting"
     ANSWER = "answer"
+    

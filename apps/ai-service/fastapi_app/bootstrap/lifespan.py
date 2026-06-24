@@ -1,24 +1,15 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from config.settings import get_settings
-from infrastructure import (
-    configure_logging,
-    get_logger,
-)
 from core.startup import (
-    check_infra_health,
+    init_infra,
 )
+from infrastructure import get_logger
 
 
 @asynccontextmanager 
 async def lifespan(app : FastAPI):
-    configure_logging()
+    await init_infra()
     logger = get_logger(__name__)
-    logger.info("fastapi_starting", service="knowledge-checker-ai-service")
-    
-    get_settings()
-    
-    await check_infra_health()
-    
+    logger.info(f"fastapi service started", service = "knowledge-checker-ai-service")
     yield
-    logger.info("fastapi_shutting_down")
+    logger.info(f"fastapi service shutting down", service = "knowledge-checker-ai-service")

@@ -2,14 +2,16 @@ from fastapi import Request
 from exceptions.base import AppError
 from fastapi.responses import JSONResponse
 from infrastructure import get_logger
+from fastapi_app.bootstrap.utils import get_status_code
 
 logger = get_logger(__name__)
 
 async def global_exception_handler(request : Request, exc):
     if isinstance(exc, AppError):
+        status_code = get_status_code(exc)
         payload = {
             "code" : exc.code,
-            "status_code" : exc.status_code,
+            "status_code" : status_code,
         }
         if exc.expose:
             payload["details"] = exc.details
@@ -28,7 +30,7 @@ async def global_exception_handler(request : Request, exc):
         
         return JSONResponse(
             payload,
-            status_code=exc.status_code
+            status_code=status_code
         )
     
     logger.critical(

@@ -17,7 +17,10 @@ from sqlalchemy.dialects.postgresql import (
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
-from models.orm.base import Base
+from models.orm.base import (
+    Base,
+    pg_value_enum,
+)
 from models import (
     Speaker,
     ContentType,
@@ -60,6 +63,10 @@ class Turn(Base):
     )
 
     speaker: Mapped[Speaker] = mapped_column(
+        pg_value_enum(
+            Speaker,
+            pg_name="speaker",
+        ),
         nullable=False,
     )
 
@@ -69,6 +76,10 @@ class Turn(Base):
     )
 
     content_type: Mapped[ContentType] = mapped_column(
+        pg_value_enum(
+            ContentType,
+            pg_name="content_type",
+        ),
         nullable=False,
     )
 
@@ -93,6 +104,10 @@ class Turn(Base):
     )
 
     difficulty_applied: Mapped[Difficulty | None] = mapped_column(
+        pg_value_enum(
+            Difficulty,
+            pg_name="difficulty",
+        ),
         nullable=True,
     )
 

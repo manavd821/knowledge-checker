@@ -12,7 +12,10 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from models.orm.base import Base
+from models.orm.base import (
+    Base,
+    pg_value_enum,
+)
 from models import FileType
 
 
@@ -44,6 +47,10 @@ class SessionDocument(Base):
     file_name: Mapped[str] = mapped_column(nullable=False)
 
     file_type: Mapped[FileType] = mapped_column(
+        pg_value_enum(
+            FileType,
+            pg_name="file_type",
+        ),
         nullable=False,
     )
 

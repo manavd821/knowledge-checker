@@ -1,8 +1,10 @@
+import asyncio
 from functools import lru_cache
 from config.settings import get_settings
 from infrastructure import (
     Database,
     RedisClient,
+    LLMProvider,
 )
 
 settings = get_settings()
@@ -14,7 +16,12 @@ def get_database() -> Database:
 
 @lru_cache
 def get_redis_client() -> RedisClient:
+    """Singleton - Holds the Upstash Redis connection"""
     return RedisClient(
         connection_string=settings.UPSTASH_REDIS_REST_URL,
         connection_token=settings.UPSTASH_REDIS_REST_TOKEN,
         )
+    
+@lru_cache
+def get_llm_provider() -> LLMProvider:
+    return LLMProvider()
