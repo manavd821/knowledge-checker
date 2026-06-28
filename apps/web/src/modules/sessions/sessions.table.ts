@@ -8,7 +8,7 @@ import {
     real,
     index,
 } from "drizzle-orm/pg-core";
-import { users } from "@/lib/db/schema/users";
+import { users } from "@/modules/users/users.table";
 import {
     statusEnum,
     sessionTypeEnum,
@@ -17,7 +17,7 @@ import {
     difficultyEnum,
     domainEnum,
     aiStrictnessEnum,
-} from "@/lib/db/enums";
+} from "@/db/enums";
 
 export const sessions = pgTable("sessions",
 {
@@ -86,4 +86,3 @@ export const sessions = pgTable("sessions",
         .on(table.status),
     ]
 );
-

@@ -1,7 +1,7 @@
-import { createUserWebhookSchema } from "@/lib/db/api/schema/users";
+import { createUserWebhookSchema } from "@/modules/users/users.schema";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { Logger } from "@/lib/logging/logger";
-import { createUser } from "@/lib/db/api/queries/users";
+import { createUser } from "@/modules/users/users.repository";
 import { ValidationError } from "@/exceptions/ValidationError";
 
 

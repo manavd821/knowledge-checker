@@ -6,7 +6,7 @@ import {
     timestamp,
     index,
 } from "drizzle-orm/pg-core";
-import { sessions } from "@/lib/db/schema/sessions";
+import { sessions } from "@/modules/sessions/sessions.table";
 
 export const session_contexts = pgTable("session_context",
 {

@@ -9,12 +9,12 @@ import {
     jsonb,
     uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { sessions } from "@/lib/db/schema/sessions";
+import { sessions } from "@/modules/sessions/sessions.table";
 import {
     speakerEnum,
     contentTypeEnum,
     difficultyEnum,
-} from "@/lib/db/enums";
+} from "@/db/enums";
 
 export const turns = pgTable("turns", 
 {

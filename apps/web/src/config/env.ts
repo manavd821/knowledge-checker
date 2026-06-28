@@ -11,7 +11,14 @@ const envSchema = z.object({
     NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL :  z.string().min(1),
     NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL :  z.string().min(1),
     CLERK_WEBHOOK_SIGNING_SECRET :  z.string().min(1),
+
     DATABASE_URL :  z.url().nonempty(),
+    
+    NEXT_PUBLIC_LIVEKIT_URL: z.url().nonempty(),
+    LIVEKIT_URL: z.url().nonempty(),
+    LIVEKIT_API_KEY: z.string().nonempty(),
+    LIVEKIT_API_SECRET: z.string().nonempty(),
+
     LOG_LEVEL : z.string().min(1).nonempty(),
 });
 

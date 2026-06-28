@@ -7,12 +7,12 @@ import {
     doublePrecision,
     jsonb,
 } from "drizzle-orm/pg-core";
-import { sessions } from "@/lib/db/schema/sessions";
+import { sessions } from "@/modules/sessions/sessions.table";
 import { 
     Weak_Area,
     Strong_Area,
     Recommendation,
-} from "@/lib/db/types";
+} from "@/db/types";
 
 export const evaluation_summaries = pgTable("evaluation_summaries",
 {

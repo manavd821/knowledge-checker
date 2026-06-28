@@ -6,10 +6,10 @@ import {
     timestamp,
     index,
 } from "drizzle-orm/pg-core";
-import { sessions } from "@/lib/db/schema/sessions";
+import { sessions } from "@/modules/sessions/sessions.table";
 import {
     fileTypeEnum,
-} from "@/lib/db/enums";
+} from "@/db/enums";
 
 export const session_documents = pgTable("session_documents",
 {
