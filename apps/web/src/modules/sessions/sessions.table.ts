@@ -27,7 +27,7 @@ export const sessions = pgTable("sessions",
     user_id : text()
         .references(() => users.user_id, {onDelete : 'cascade'})
         .notNull(),
-    status : statusEnum().notNull().default("pending"),
+    status : statusEnum().notNull().default("preparing"),
 
     session_type : sessionTypeEnum().notNull(),
     topic_type : topicTypeEnum().notNull(),

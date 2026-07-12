@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1780576394735,
-      "tag": "0000_mysterious_forgotten_one",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1781773566851,
-      "tag": "0001_lively_nico_minoru",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1782290858865,
-      "tag": "0002_regular_human_torch",
+      "when": 1783600339115,
+      "tag": "0000_burly_madame_masque",
       "breakpoints": true
     }
   ]

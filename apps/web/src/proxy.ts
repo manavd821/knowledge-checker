@@ -9,7 +9,7 @@ import { Logger } from "@/lib/logging/logger";
 const isPublicRoute = createRouteMatcher([
     '/sign-in(.*)',
     '/sign-up(.*)',
-    '/api/webhooks(.*)',
+    '/api/:version/webhooks(.*)',
     '/',
 ]);
 

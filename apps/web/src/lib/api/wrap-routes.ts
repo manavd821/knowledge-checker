@@ -5,9 +5,15 @@ import { ClientError } from "@/exceptions/ClientError";
 import { ServerError } from "@/exceptions/ServerError";
 import { ValidationError } from "@/exceptions/ValidationError";
 
-export const withRequestContextAndErrorHandling = 
-    async (handler : (req : NextRequest) => Promise<Response>) => {
-        return async (req : NextRequest) => {
+export async function withRequestContextAndErrorHandling<TContext>
+    (handler : (
+        req : NextRequest,
+        context : TContext,
+    ) => Promise<Response>) {
+    return async (
+            req : NextRequest, 
+            context : TContext
+        ) => {
             return request_context.run({
                 user_id : req.headers.get('X-User-ID')  || "",
                 req_id : crypto.randomUUID(),
@@ -18,7 +24,7 @@ export const withRequestContextAndErrorHandling =
                 
                 logger.debug("attaching request context", request_context.getStore());
                 try {
-                    return await handler(req);
+                    return await handler(req, context);
                 } catch (error) {
                     if(error instanceof ServerError){
                         logger.warn(error.message, {
@@ -51,4 +57,4 @@ export const withRequestContextAndErrorHandling =
                 }
             })
         }
-    }
+}

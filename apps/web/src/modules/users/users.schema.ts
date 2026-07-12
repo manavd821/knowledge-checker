@@ -1,5 +1,5 @@
 import { z } from 'zod';
-
+import { CreateUserInput } from '@/modules/users/users.type';
 
 export const createUserWebhookSchema = z.object({
     id : z.string().min(1),
@@ -8,10 +8,11 @@ export const createUserWebhookSchema = z.object({
     })).min(1),
     first_name : z.string().nullable(),
     last_name : z.string().nullable(),
-}).transform(data => ({
+}).transform(
+    (data) : CreateUserInput  => ({
     user_id : data.id,
     email : data.email_addresses[0].email_address,
     first_name: data.first_name,
     last_name : data.last_name,
 }));
-export type CreateUser = z.infer<typeof createUserWebhookSchema>;
+export type ClerkCreateUser  = z.infer<typeof createUserWebhookSchema>;

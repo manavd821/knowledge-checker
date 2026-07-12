@@ -20,6 +20,11 @@ const envSchema = z.object({
     LIVEKIT_API_SECRET: z.string().nonempty(),
 
     LOG_LEVEL : z.string().min(1).nonempty(),
+
+    APPWRITE_API_ENDPOINT: z.httpUrl().nonempty(),
+    APPWRITE_API_SECRET: z.string().nonempty(),
+    APPWRITE_PROJECT_ID: z.string().nonempty(),
+    APPWRITE_BUCKET_ID: z.string().nonempty(),
 });
 
 let env = envSchema.parse(process.env);

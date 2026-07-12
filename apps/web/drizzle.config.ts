@@ -3,10 +3,10 @@ import { defineConfig } from "drizzle-kit";
 export default defineConfig({
   dialect: "postgresql",
   schema: [
-    "./src/lib/db/schema/*",
-    "./src/lib/db/enums.ts"
+    "./src/modules/index.ts",
+    "./src/db/enums.ts"
   ],
-  out: "./src/lib/db/migrations",
+  out: "./src/db/migrations",
   dbCredentials : {
     url : process.env.DATABASE_URL!,
   }

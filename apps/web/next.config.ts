@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   allowedDevOrigins : [
       'cresting-parmesan-ninetieth.ngrok-free.dev',
   ],
+  serverExternalPackages : ["pdf-parse", "@napi-rs/canvas"],
 };
 
 export default nextConfig;
