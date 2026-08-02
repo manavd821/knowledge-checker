@@ -1,12 +1,17 @@
 import { SessionRepository } from "@/modules/sessions/sessions.repository";
 import { SessionDocumentRepository } from "@/modules/session-documents/session-documents.repository";
-import { CreateSession, NewSession } from "@/modules/sessions/sessions.types";
+import { CreateSession, CreateSessionParticipants, CreateSessionRoute, CreateSessionSchema, NewSession, SelectSession, Status } from "@/modules";
 import { IAIClient } from "@/ai/ai-client";
 import { DocumentExtractionService } from "@/document/document-extraction.service";
 import { IObjectStorage } from "@/storage/object-storage";
 import { MimeType, NewDocument } from "@/modules/session-documents/session-documents.types";
-import { MIME_TO_FILE_TYPE } from "@/modules/sessions/sessions.meta";
+import { MIME_TO_FILE_TYPE } from "@/react/session-form/sessions.meta";
 import get_logger from "@/lib/logging/logger-factory";
+import { NotFoundError } from "@/exceptions/NotFoundError";
+import { ForbiddenError } from "@/exceptions/ForbiddenError";
+import { ConflictError } from "@/exceptions/ConflictError";
+import { SessionParticipantsService } from "@/modules/session-participants/session-participants.service";
+import { ARRAY_FIELD } from "@/shared/enums";
 
 const logger = get_logger()
 export class SessionService{
@@ -16,22 +21,55 @@ export class SessionService{
         private readonly ai_client: IAIClient,
         private readonly doc_extract_service: DocumentExtractionService,
         private readonly object_store: IObjectStorage,
+        private readonly session_participant_service: SessionParticipantsService,
     ){}
+    parseFormData(formData: FormData) {
+        const data : Record<string , FormDataEntryValue | FormDataEntryValue[]> = {};
+        for(const key of new Set(formData.keys())){
+            const rawvalues = formData.getAll(key);
 
+            const parsedValues = rawvalues.map(val => {
+                if(typeof val === "string"){
+                    try {
+                        return JSON.parse(val); // for participant object
+                    } catch {
+                        return val; // plain string fallback
+                    }
+                }
+                return val; // file as it is
+            })
+            if(ARRAY_FIELD.has(key)){
+                data[key] = parsedValues;
+            }
+            else{
+                data[key] = parsedValues.length === 1 ? parsedValues[0] : parsedValues;
+            }
+        }
+        ARRAY_FIELD.forEach(arrayKey => {
+            if(!(arrayKey in data)) {
+                data[arrayKey] = [];
+            }
+        });
+        return data;
+    }
     async createSession(
         user_id: string,
-        data : CreateSession,
+        data : CreateSessionRoute,
     ) : Promise<string>{
         const session_data : NewSession = {
+            ...CreateSessionSchema.parse({
             ...data,
-            user_id,
-            status: "preparing",
-            scheduled_at: data.scheduled_at
-                ? new Date(data.scheduled_at)
-                : new Date()
+        }),
+        created_by: user_id,
+        status: "preparing",
+        scheduled_at: data.scheduled_at
+            ? new Date(data.scheduled_at)
+            : new Date()
         }
+        // create session
         const session_id = await this.session_repo.create(session_data);
         logger.info("Session created succefully", {session_id});
+        // add session documents
         if(data.session_documents && data.session_documents.length){
             // store docs in object storage and extract text
             const results = await Promise.all(
@@ -60,10 +98,68 @@ export class SessionService{
             // generate and store session brief
 
         }
-        await this.update_session_status_ready(session_id);
+        // add participants
+        const participants : CreateSessionParticipants[] = 
+            data.participants.map(p => ({
+                session_id,
+                user_id: p.user_id,
+                role: p.role,
+            }));
+        const participant_ids = await this.session_participant_service
+                .create_multiple_participants(participants);
+        logger.info(
+            "Session Participants are added",
+            {num_of_participants_added: participant_ids.length},
+        )
+        await this.update_session_status(session_id, "ready");
         return session_id;
     }
-    async update_session_status_ready(session_id : string) : Promise<void>{
-        await this.session_repo.update_status(session_id, "ready");
+    async update_session_status(session_id : string, status: Status) : Promise<void>{
+        await this.session_repo.update_status(session_id, status);
+    }
+
+    async validate_session(session_id: string) : Promise<SelectSession>{
+        logger.info("Validating session", {session_id,});
+        const dbData = await this.session_repo.get_by_session_id(session_id);
+        if(!dbData){
+            // throw new Error("SessionNotFound: Session not found");
+            throw new NotFoundError("Session not found",session_id, "session");
+        }
+        
+        if(dbData.status !== "ready" && dbData.status !== "active"){
+            // throw new Error(`InvalidSessionStateError: Cannot join a session with status '${dbData.status}'`);
+            throw new ConflictError(
+                `Cannot join a session with status '${dbData.status}'`, 
+                "session",
+                `session status can't be ${dbData.status}.`
+            )
+        }
+        logger.info("Session validated successfully", {session_id,});
+        return dbData;
+    }
+    async mark_session_active_and_started_at(session_id : string, session_data? : SelectSession){
+        if(!session_data){
+            session_data = await this.session_repo.get_by_session_id(session_id);
+            if(!session_data) throw new NotFoundError("Session not found",session_id, "session");
+            logger.info("Session data fetched from db", {session_id, session_data});
+        }
+        if(session_data.status != "active"){
+            await this.session_repo.update_status(session_id, "active")
+            session_data.status = "active";
+            logger.info("Session status updated to active", {session_id});
+        }
+        if(!session_data.started_at){
+            const started_at = await this.session_repo.mark_session_started_at(session_id);
+            session_data.scheduled_at = started_at;
+            logger.info(
+                "Session started_at marked successfully",
+                {started_at}
+            )
+        }
+    }
+    async get_session(session_id: string) : Promise<SelectSession | undefined>{
+        const session = await this.session_repo.get_by_session_id(session_id);
+        logger.info("Session fetched from db", {session_id, session});
+        return session;
     }
 }

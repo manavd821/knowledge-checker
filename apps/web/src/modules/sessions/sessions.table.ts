@@ -24,7 +24,7 @@ export const sessions = pgTable("sessions",
     session_id : uuid()
         .primaryKey()
         .defaultRandom(),
-    user_id : text()
+    created_by : text()
         .references(() => users.user_id, {onDelete : 'cascade'})
         .notNull(),
     status : statusEnum().notNull().default("preparing"),
@@ -80,7 +80,7 @@ export const sessions = pgTable("sessions",
 },
     (table) => [
         index("sessions_user_id_idx")
-        .on(table.user_id),
+        .on(table.created_by),
         
         index("session_status_idx")
         .on(table.status),

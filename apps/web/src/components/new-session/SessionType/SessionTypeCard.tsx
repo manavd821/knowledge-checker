@@ -3,9 +3,9 @@ import {
     Check,
     type LucideIcon 
 } from "lucide-react";
-import { SessionFormStep1 } from "@/modules";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { SessionFormStep1 } from "@/react/session-form/session-form.types";
 
 export function SessionTypeCard({
     value,

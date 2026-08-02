@@ -8,22 +8,19 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { SESSION_DURATIONS } from "@/db/enums";
-import { 
-    type SessionDurationField, 
-    FormFieldProps,
-} from "@/modules";
-
-type Props = FormFieldProps<SessionDurationField["value"]>;
+import { useSessionConfig } from "@/react/session-form/hooks/use-session-config";
+import type { SessionDurationField } from "@/react/session-form/session-form.types";
 
 
-export function SessionDurationSection({
-    value,
-    onChange,
-} : Props){
+export function SessionDurationSection(){
+    const {
+        sessionDuration,
+        updateSessionDuration,
+    } = useSessionConfig();
     return (
         <Select
-        value={value?.toString()}
-        onValueChange={(val) => onChange(Number(val) as SessionDurationField["value"])}
+        value={sessionDuration.toString()}
+        onValueChange={(val) => updateSessionDuration(Number(val) as SessionDurationField["value"])}
         >
         <SelectTrigger className="w-45">
             <SelectValue placeholder="Select duration" />

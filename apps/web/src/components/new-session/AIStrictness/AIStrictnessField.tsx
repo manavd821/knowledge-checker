@@ -1,29 +1,19 @@
 import { Field, FieldError } from "@/components/ui/field";
-import { 
-    type AIStrictnessField, 
-    FormFieldProps,
-} from "@/modules";
 import { SectionHeading } from "@/components/new-session/SectionHeading";
 import { AIStrictnessSection } from "@/components/new-session/AIStrictness/AIStrictnessSection";
+import type { AIStrictnessField } from "@/react/session-form/session-form.types";
+import { type FieldError as ErrorType } from "react-hook-form";
 
-type Props = FormFieldProps<AIStrictnessField["value"]>;
 
-export function AIStrictnessField({
-    value,
-    onChange,
-    errors,
-} : Props){
-
+export function AIStrictnessField({ errors }: {
+    errors: ErrorType | undefined
+}){
     return (
         <Field>
             <SectionHeading>AI Strictness</SectionHeading>
             <FieldError errors={[errors]}/>
 
-            <AIStrictnessSection
-            value={value}
-            onChange={onChange}
-            />
-
+            <AIStrictnessSection/>
         </Field>
     )
 }

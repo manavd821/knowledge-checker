@@ -1,28 +1,19 @@
-import {
-    type SessionDocumentsField, 
-    FormFieldProps,
-} from "@/modules";
 import { SectionHeading } from "@/components/new-session/SectionHeading";
-import { Field } from "@/components/ui/field";
+import { Field, FieldError } from "@/components/ui/field";
 import { DocumentUploadSection } from "@/components/new-session/DocumentUpload/DocumentUploadSection";
+import { type FieldError as ErrorType } from "react-hook-form";
 
-type Props = FormFieldProps<SessionDocumentsField["value"]>;
-
-export function DocumentUploadField({
-    value,
-    onChange,
-    errors
-} : Props){
+export function DocumentUploadField({ errors }: {
+    errors: ErrorType | undefined
+}){
     return (
         <Field>
             <SectionHeading optional>Session Documents</SectionHeading>
+            <FieldError errors={[errors]}/>
             <p
             className="text-muted-foreground"
             >Job description, resume, study notes, or case materials</p>
-            <DocumentUploadSection
-            value={value}
-            onChange={onChange}
-            />
+            <DocumentUploadSection />
         </Field>
 
     )

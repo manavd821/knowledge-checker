@@ -1,33 +1,24 @@
-import { 
-    type TopicTypeField,
-    FormFieldProps,
-} from "@/modules";
 import { SectionHeading } from "@/components/new-session/SectionHeading";
 import { TopicSection } from "@/components/new-session/TopicType/TopicSection";
 import { 
     Field, 
     FieldError,
 } from "@/components/ui/field";
+import type { 
+    TopicTypeField,
+} from "@/react/session-form/session-form.types";
+import { type FieldError as ErrorType } from "react-hook-form";
 
-type Props = FormFieldProps<TopicTypeField["value"]>;
-
-export function TopicTypeField({
-  value,
-  onChange,
-  errors,
-}: Props){
+export function TopicTypeField({ errors} : {
+    errors: ErrorType | undefined
+}){
+    
     return (
         <Field>
             <SectionHeading>Topic Type</SectionHeading>
             <FieldError
             errors={[errors]}/>
-
-            <TopicSection
-            value = {value}
-            onChange = {onChange}
-            hasError = {!!errors}
-            />
-
+            <TopicSection hasError={!!errors}/>
         </Field>
     )
 }

@@ -1,6 +1,6 @@
 import { SessionDocumentSchema } from "@/modules/session-documents/session-documents.schema";
 import { z } from "zod";
-import { MIME_TO_FILE_TYPE } from "@/modules/sessions/sessions.meta";
+import { MIME_TO_FILE_TYPE } from "@/react/session-form/sessions.meta";
 import { InferInsertModel } from "drizzle-orm";
 import { session_documents } from "@/modules/session-documents/session-documents.table";
 

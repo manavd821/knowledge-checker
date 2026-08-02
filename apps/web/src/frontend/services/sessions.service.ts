@@ -1,0 +1,155 @@
+import { ConnectionService } from "@/connection/connection-service";
+import { LiveSessionInfo, LiveSessionInfoSchema, SessionForm } from "@/modules";
+import { SessionCacheService } from "@/frontend/cache/session-cache.service";
+import { ConfigurationError } from "@/exceptions/ConfigurationError";
+import { ConnectionState } from "@/interview-session/interview-session-types";
+import { CreateConnection, CreateConnectionSchema } from "@/shared/dto/sessions/create-connection.dto";
+import { GetSearchUsers } from "@/shared/dto/users/search-user.dto";
+import { ARRAY_FIELD } from "@/shared/enums";
+
+export class SessionService{
+    constructor(
+        private readonly session_cache : SessionCacheService,
+        private readonly connection_service : ConnectionService,  
+    ){}
+
+    async get_live_session_info(session_id: string) : Promise<LiveSessionInfo | null>{
+        let data = this.session_cache.get_live_session_info(session_id);
+        if(!data){
+            // cache miss
+            const res = await this.connection_service.get_session(session_id);
+            if(!res.success){
+                console.error({res});
+                switch(res.code){
+                    // case "ALREADY_EXISTS":
+                        // 
+                }
+                return null;
+            }
+            data = res.data; 
+            this.set_live_session_info(session_id, data);
+        }
+        return data;
+    }
+    set_live_session_info(session_id: string, data: LiveSessionInfo){
+        this.session_cache.set_live_session_info(session_id, data);
+    }
+    async create_session(data: SessionForm) : Promise<string>{
+        // convert into form data
+        const formData = new FormData();
+        // console.log(Object.entries(data));
+
+        Object.entries(data).forEach(([key, val]) => {
+            if(ARRAY_FIELD.has(key)){
+                const arrayValues = Array.isArray(val) ? val : [];
+                arrayValues.forEach(item => {
+                    if(item === undefined || item === null) return;
+
+                    if(item instanceof File){
+                        formData.append(key, item);
+                    } else if(typeof item === "object"){
+                        // for participant object
+                        formData.append(key, JSON.stringify(item));
+                    } else {
+                        formData.append(key, String(item));
+                    }
+                })
+            } else if(key === "scheduled_at"){
+                if(val instanceof Date){
+                    formData.append("scheduled_at", val.toISOString());
+                }
+            } else if(val !== undefined && val !== null){
+                formData.append(key, String(val));
+            }
+        });
+        // create session in db
+        const res = await this.connection_service.create_session(formData);
+        if(!res.success){
+            console.error({res});
+            switch(res.code){
+                //
+            }
+            throw new ConfigurationError(
+                "Failed to create session in db",
+                {res}
+            )
+        }
+        // no cache needed as you need fields like started_at which is updated only when user joins session.
+        // so no need to cache session data at creation. During live session, fetch session with all the updated fields 
+        // cache the data
+        const { 
+            session_id ,
+            status,
+        } = res.data;
+        // const live_session_info = LiveSessionInfoSchema.safeParse({
+        //     session_id,
+        //     status,
+        //     ...data,
+        // })
+        // if(!live_session_info.success){
+        //     console.log({issues : live_session_info.error.issues})
+        //     throw new ConfigurationError(
+        //         "Failed to parse live session info from server response",
+        //         {issues : live_session_info.error.issues},
+        //     )
+        // }
+        // this.session_cache.set_live_session_info(session_id, live_session_info.data)
+        return session_id;
+    }
+
+    async get_connection_info(session_id: string) : Promise<CreateConnection>{
+        // no caching of connection info
+        const res = await this.connection_service.create_connection(session_id);
+        if(!res.success){
+            switch(res.code){
+                // case ""
+            }
+            throw new Error(res.message, {cause : {
+                ...res
+            }});
+        }
+        return res.data;
+    }
+
+    async get_connection_state(session_id: string): Promise<ConnectionState>{
+        let connection_state = this.session_cache.get_connection_state(session_id);
+        if(!connection_state){
+            console.log("cache miss: get_connection_state");
+            const res = await this.get_connection_info(session_id);
+            connection_state = {
+                session_id,
+                participant_id: res.participant_id,
+                connection_id: res.connection_id,
+                token: res.token,
+                ws_url: res.ws_url,
+                room_name: session_id
+            }
+            this.session_cache.set_connection_state(session_id, connection_state);
+        }
+        return connection_state;
+    }
+    set_connection_state(session_id: string, data: ConnectionState){
+        this.session_cache.set_connection_state(session_id, data);
+    }
+    
+    leave_session(connection_id: string){
+        // navigator.sendBeacon(
+        //     `/api/v1/session-connections/${connection_id}/leave`
+        // );
+        this.connection_service.leave_session(connection_id);
+    }
+
+    async search_user(text: string): Promise<GetSearchUsers>{
+        const res = await this.connection_service.search_user(text);
+        if(!res.success){
+            switch(res.code){
+                //
+            }
+            throw new Error(
+                res.message,
+                {cause : {...res}}
+            )
+        }
+        return res.data;
+    }
+}

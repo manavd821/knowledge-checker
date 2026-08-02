@@ -1,9 +1,9 @@
 import { ExtractorRegistry } from "@/document/extractor-registry";
 import { 
     FileType, 
-    MIME_TO_FILE_TYPE, 
     MimeType, 
 } from "@/modules";
+import { MIME_TO_FILE_TYPE } from "@/react/session-form/sessions.meta";
 
 export class DocumentExtractionService{
     constructor(

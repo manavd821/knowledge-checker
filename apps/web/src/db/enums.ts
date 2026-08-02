@@ -13,6 +13,12 @@ export const SESSION_TYPE = [
     "human_session",
 ] as const;
 
+export const ROLE = [
+    "candidate",
+    "interviewer",
+    "observer",
+] as const;
+
 export const TOPIC_TYPE = [
     "mock_interview",
     "technical",
@@ -83,9 +89,17 @@ export const SESSION_DURATIONS = [
     90,
     120,
 ] as const;
+export const DISCONNECT_REASON = [
+    "manual_leave",
+    "network_disconnect",
+    "connection_lost",
+    "session_completed",
+    "removed",
+] as const;
 
 export const statusEnum = pgEnum("status", STATUS);
 export const sessionTypeEnum = pgEnum("session_type", SESSION_TYPE);
+export const roleEnum = pgEnum("role", ROLE);
 export const topicTypeEnum = pgEnum("topic_type",TOPIC_TYPE);
 export const roleLevelEnum = pgEnum("role_level",ROLE_LEVEL);
 export const difficultyEnum = pgEnum("difficulty",DIFFICULTY);
@@ -94,3 +108,4 @@ export const aiStrictnessEnum = pgEnum("ai_strictness",AI_STRICTNESS);
 export const fileTypeEnum = pgEnum("file_type", FILE_TYPE);
 export const speakerEnum = pgEnum("speaker", SPEAKER);
 export const contentTypeEnum = pgEnum("content_type", CONTENT_TYPE);
+export const disconnectReasonEnum = pgEnum("disconnect_reason", DISCONNECT_REASON);

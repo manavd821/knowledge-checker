@@ -3,10 +3,9 @@ import { Pencil } from 'lucide-react';
 import { ReviewDetailRow } from "@/components/new-session/ReviewDetailRow";
 import { SetStateAction } from "react";
 import { 
-    SessionForm, 
     SESSION_DURATION_LABELS,
     AI_STRICTNESS_META,
-} from "@/modules";
+} from "@/react/session-form/sessions.meta";
 import {
     Card,
     CardAction,
@@ -15,6 +14,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { ReviewFeatures } from "@/components/new-session/ReviewFeatures";
+import { SessionForm } from "@/react/session-form/session-form.types";
 
 export function ReviewCardStep2({
     data, 
@@ -57,6 +57,7 @@ export function ReviewCardStep2({
                     ai_hints_enabled={data.ai_hints_enabled}
                     camera_required={data.camera_required}
                     />
+                    
                     <ReviewDetailRow
                     label="Scheduled"
                     value={data?.scheduled_at?.toLocaleString() ?? "Not scheduled — start immediately"}

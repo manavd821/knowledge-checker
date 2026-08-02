@@ -1,22 +1,32 @@
+import { LogLevel } from "@/lib/logging/types/loglevel";
+import { ErrorCode } from "@/shared/errors/error-code";
 
 export abstract class AppError extends Error{
-    abstract status_code: number;
-    abstract expose: boolean;
-    code = "UNKNOWN_ERROR";
-
+    abstract readonly status_code: number;
+    abstract readonly code: ErrorCode;
+    abstract readonly logLevel: LogLevel;
+    
+    readonly cause?: unknown;
+    readonly exposeToClient : boolean;
+    
     constructor(
-        message: string, 
-        code = "UNKNOWN_ERROR",
+        message: string,
+        options? : {
+            exposeToClient?: boolean;
+            cause? : unknown;
+        }
     ){
         super(message);
-        this.name = this.constructor.name;
-        this.code = code
+        this.exposeToClient = options?.exposeToClient ?? false;
+        this.cause = options?.cause;
     }
     toJSON(){
         return{
             success : false,
             code : this.code,
-            message: this.message,
+            message: this.exposeToClient
+                ? this.message 
+                : "Internal Server Error",
             status_code : this.status_code
         };
     }

@@ -1,47 +1,39 @@
-import { CardField } from "@/components/new-session/CardField";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { TOPIC_TYPE } from "@/db/enums";
 import { cn } from "@/lib/utils";
-import { 
-    type TopicTypeField,
-    FormFieldProps,
-    TOPIC_TYPE_META,
-} from "@/modules";
+import { useSessionDetail } from "@/react/session-form/hooks/use-session-detail";
+import { TOPIC_TYPE_META } from "@/react/session-form/sessions.meta";
+import { TopicCard } from "@/components/new-session/TopicType/TopicCard";
 
-type Props = FormFieldProps<TopicTypeField["value"]> & {
-    hasError : boolean;
-};
+export function TopicSection({hasError} : {hasError: boolean}){
+    const {
+        topicType, 
+        updateTopicType,
+    } = useSessionDetail();
 
-
-export function TopicSection({
-  value,
-  onChange,
-  hasError,
-}: Props){
     return (
             <RadioGroup
             className={cn(
                 "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3",
             )}
-            value={value}
-            onValueChange={onChange}
+            value={topicType}
+            onValueChange={updateTopicType}
             >
             {
                 TOPIC_TYPE.map(topic => {
                     const { label, description, icon } = TOPIC_TYPE_META[topic]
                     return (
-                        <CardField 
+                        <TopicCard 
                         value={topic}
-                        selected ={topic == value}
+                        selected ={topic == topicType}
                         Icon={icon}
                         label={label}
                         description={description}
                         key={topic}
-                        onChange = {onChange}
-                        hasError = {hasError}
+                        hasError={hasError}
                     />
                     )}
-                    )
+                )
             }
             </RadioGroup>
     )

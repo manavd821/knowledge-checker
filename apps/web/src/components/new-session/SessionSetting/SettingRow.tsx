@@ -1,4 +1,9 @@
-import { Field, FieldContent, FieldDescription, FieldTitle } from "@/components/ui/field";
+import { 
+    Field, 
+    FieldContent, 
+    FieldDescription, 
+    FieldTitle, 
+} from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useId } from "react";

@@ -1,5 +1,6 @@
 import pino from "pino";
 import { getRequestContext } from "@/lib/logging/request-contexts";
+import { LogLevel } from "@/lib/logging/types/loglevel";
 
 const logger = pino({
     level : process.env.LOG_LEVEL,
@@ -15,7 +16,32 @@ const logger = pino({
 })
 
 export class Logger{
-    info(msg?: string, data?: object){
+
+    log(
+        msg: string,
+        level : LogLevel,
+        data?: Record<string, unknown>,
+    ){
+        switch(level){
+            case "debug":
+                this.debug(msg, data);
+                break;
+            case "error":
+                this.error(msg, data);
+                break;
+            case "fatal":
+                this.fatal(msg, data);
+                break;
+            case "info":
+                this.info(msg, data);
+                break;
+            case "warn":
+                this.warn(msg, data);
+                break;
+        }
+    }
+
+    info(msg?: string, data?: Record<string, unknown>){
         const request_ctx_data = getRequestContext();
 
         logger.info({
@@ -25,16 +51,16 @@ export class Logger{
         msg
     )
     }
-    error(msg? : string, data?: object){
+    error(msg? : string, data?: Record<string, unknown>){
         logger.error({...data}, msg);
     }
-    warn(msg? : string, data?: object){
+    warn(msg? : string, data?: Record<string, unknown>){
         logger.warn({...data}, msg);
     }
-    fatal(msg? : string, data?: object){
+    fatal(msg? : string, data?: Record<string, unknown>){
         logger.fatal({...data}, msg);
     }
-    debug(msg? : string, data?: object){
+    debug(msg? : string, data?: Record<string, unknown>){
         logger.debug({...data}, msg);
     }
 }

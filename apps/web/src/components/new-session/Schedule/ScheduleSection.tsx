@@ -1,10 +1,6 @@
 import { useId } from "react";
 import { format } from "date-fns";
 import { ChevronDownIcon } from "lucide-react";
-import { 
-    type ScheduledAtField, 
-    FormFieldProps,
-} from "@/modules";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input";
@@ -17,13 +13,13 @@ import {
     PopoverContent, 
     PopoverTrigger 
 } from "@/components/ui/popover";
+import { useSessionConfig } from "@/react/session-form/hooks/use-session-config";
 
-type Props = FormFieldProps<ScheduledAtField["value"]>;
-
-export function ScheduleSection({
-    value,
-    onChange,
-} :Props){
+export function ScheduleSection(){
+    const {
+        scheduledAt,
+        updateScheduledAt,
+    } = useSessionConfig();
     const time_id = useId();
     const calender_id = useId();
 
@@ -31,24 +27,24 @@ export function ScheduleSection({
         if(!date) return;
 
         const updated = new Date(date);
-        if(value){
-            updated.setHours(value?.getHours());
-            updated.setMinutes(value?.getMinutes());
+        if(scheduledAt){
+            updated.setHours(scheduledAt.getHours());
+            updated.setMinutes(scheduledAt.getMinutes());
         }
 
-        onChange(updated);
+        updateScheduledAt(updated);
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if(!value) return;
+        if(!scheduledAt) return;
 
         const [hours, minutes] = e.target.value.split(":");
-        const updated = new Date(value);
+        const updated = new Date(scheduledAt);
 
         updated.setHours(Number(hours));
         updated.setMinutes(Number(minutes));
 
-        onChange(updated);
+        updateScheduledAt(updated);
 
     }
     return (
@@ -66,7 +62,7 @@ export function ScheduleSection({
                         id={calender_id}
                         className="w-32 justify-between font-normal"
                         >{
-                            value ? format(value, "PPP") : "Pick a date"
+                            scheduledAt ? format(scheduledAt, "PPP") : "Pick a date"
                         }
                         <ChevronDownIcon/>
                         </Button>
@@ -74,7 +70,7 @@ export function ScheduleSection({
                     <PopoverContent>
                         <Calendar
                         mode="single"
-                        selected={value}
+                        selected={scheduledAt}
                         onSelect={handleSelect}
                         />
                     </PopoverContent>
@@ -86,12 +82,11 @@ export function ScheduleSection({
                 htmlFor="time-picker-optional">Time</FieldLabel>
                 <Input
                 type="time"
-                value={value ? format(value, "HH:mm") : ""}
+                value={scheduledAt ? format(scheduledAt, "HH:mm") : ""}
                 onChange={handleChange}
                 id={time_id}
                 />
             </Field>
         </div>
-
     )
 }

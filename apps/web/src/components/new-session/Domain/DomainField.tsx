@@ -1,32 +1,24 @@
-import { 
-    type DomainField, 
-    FormFieldProps 
-} from "@/modules";
 import { SectionHeading } from "@/components/new-session/SectionHeading";
 import { DomainSection } from "@/components/new-session/Domain/DomainSection";
 import { 
     Field, 
     FieldError,
 } from "@/components/ui/field";
+import type{ 
+    DomainField, 
+} from "@/react/session-form/session-form.types";
+import { type FieldError as ErrorType } from "react-hook-form";
 
-type Props = FormFieldProps<DomainField["value"]>;
 
-export function DomainField({
-  value,
-  onChange,
-  errors,
-}: Props){
+export function DomainField({ errors} : {
+    errors: ErrorType | undefined
+}){
     return (
         <Field>
             <SectionHeading>Domain</SectionHeading>
             <FieldError
             errors={[errors]}/>
-
-            <DomainSection
-            value = {value}
-            onChange = {onChange}
-            />
-
+            <DomainSection/>
         </Field>
     )
 }

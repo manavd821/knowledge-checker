@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   allowedDevOrigins : [
       'cresting-parmesan-ninetieth.ngrok-free.dev',
   ],
+  reactStrictMode: false,
   serverExternalPackages : ["pdf-parse", "@napi-rs/canvas"],
 };
 

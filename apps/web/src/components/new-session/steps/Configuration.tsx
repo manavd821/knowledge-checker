@@ -1,22 +1,19 @@
 import { 
     Controller, 
-    useForm,
+    useFormContext,
 } from "react-hook-form";
-import { 
-    StepFormData, 
-} from "@/modules";
 import { SessionDurationField } from "@/components/new-session/SessionDuration/SessionDurationField";
 import { AIStrictnessField } from "@/components/new-session/AIStrictness/AIStrictnessField";
 import { Card, CardContent } from "@/components/ui/card";
 import { SettingRow } from "@/components/new-session/SessionSetting/SettingRow";
 import { Separator } from "@/components/ui/separator";
 import { ScheduleField } from "@/components/new-session/Schedule/ScheduleField";
+import { SessionForm } from "@/react/session-form/session-form.types";
 
-export function Configuration({
-    control,
-} : {
-    control : ReturnType<typeof useForm<StepFormData>>["control"];
-}){
+export function Configuration(){
+    const {
+        control,
+    } = useFormContext<SessionForm>();
     return (
         <>
         <div
@@ -25,23 +22,15 @@ export function Configuration({
             <Controller
             control={control}
             name="duration_minutes"
-            render={({field, fieldState}) => (
-                <SessionDurationField
-                value={field.value}
-                onChange={field.onChange}
-                errors={fieldState.error}
-                />
+            render={({fieldState}) => (
+                <SessionDurationField errors = {fieldState.error}/>
             ) }
             />
             <Controller
             control={control}
             name="ai_strictness"
-            render={({field, fieldState}) => (
-                <AIStrictnessField
-                value={field.value}
-                onChange={field.onChange}
-                errors={fieldState.error}
-                />
+            render={({fieldState}) => (
+                <AIStrictnessField errors={fieldState.error}/>
             ) }
             />
         </div>
@@ -95,16 +84,12 @@ export function Configuration({
                 />
             </CardContent>
         </Card>
-
+        
         <Controller
         control={control}
         name="scheduled_at"
-        render={({ field, fieldState }) => (
-            <ScheduleField
-            value={field.value}
-            onChange={field.onChange}
-            errors={fieldState.error}
-            />
+        render={({fieldState}) => (
+            <ScheduleField errors={fieldState.error}/>
         )}
         />
         </>

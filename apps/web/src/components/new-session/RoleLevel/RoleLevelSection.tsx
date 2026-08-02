@@ -1,7 +1,3 @@
-import { 
-  RoleLevelField,
-  FormFieldProps,
-} from "@/modules";
 import { ROLE_LEVEL } from "@/db/enums";
 import {
   Select,
@@ -12,17 +8,17 @@ import {
   SelectValue,
   SelectLabel,
 } from "@/components/ui/select";
+import { useSessionDetail } from "@/react/session-form/hooks/use-session-detail";
 
-type Props = FormFieldProps<RoleLevelField["value"]>;
-
-export function RoleLevelSection({
-  value,
-  onChange,
-}: Props){
+export function RoleLevelSection(){
+    const {
+      roleLevel,
+      updateRoleLevel,
+    } = useSessionDetail();
     return (
             <Select 
-            value={value}
-            onValueChange={onChange}
+            value={roleLevel}
+            onValueChange={updateRoleLevel}
             >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select level" />

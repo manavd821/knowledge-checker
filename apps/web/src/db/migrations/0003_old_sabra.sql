@@ -1,0 +1,1 @@
+ALTER TABLE "session_participants" DROP COLUMN "last_joined_at";

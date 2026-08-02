@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useAdditionalContext } from "@/react/session-form/hooks/use-additional-context";
 import { 
     FileText,
     X,
@@ -6,11 +7,14 @@ import {
 
 export function UploadedDocumentItem({
     file,
-    handleRemoveFile,
+    index,
 } : {
     file : File,
-    handleRemoveFile: (file : File) => void
+    index: number,
 }){
+    const {
+        removeDocument,
+    } = useAdditionalContext();
     const convertFileSize = (bytes : number) : string => {
         if(bytes === 0) return "0 B";
 
@@ -41,7 +45,7 @@ export function UploadedDocumentItem({
             </div>
             <Button
             variant="ghost"
-            onClick={_ => handleRemoveFile(file)}
+            onClick={_ => removeDocument(index)}
             >
                 <X/>
             </Button>

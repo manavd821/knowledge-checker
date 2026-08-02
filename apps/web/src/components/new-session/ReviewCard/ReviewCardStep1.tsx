@@ -7,9 +7,8 @@ import {
     DIFFICULTY_META, 
     DOMAIN_META, 
     ROLE_LEVEL_META, 
-    SessionForm, 
     TOPIC_TYPE_META,
-} from "@/modules";
+} from "@/react/session-form/sessions.meta";
 import {
     Card,
     CardAction,
@@ -17,6 +16,9 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Participant } from "@/components/new-session/Participants/Participant";
+import { SessionForm } from "@/react/session-form/session-form.types";
 
 export function ReviewCardStep1({
     data, 
@@ -25,7 +27,6 @@ export function ReviewCardStep1({
     data : SessionForm;
     setCurrentStep : React.Dispatch<SetStateAction<number>>;
 }){
-    
     return (
         <Card
         className="overflow-hidden py-0 gap-0"
@@ -48,8 +49,35 @@ export function ReviewCardStep1({
                 <div>
                     <ReviewDetailRow
                     label="Session Type"
-                    value={SESSION_TYPE_META[data?.session_type!].label || ""}
+                    value={SESSION_TYPE_META[data.session_type!]?.label || ""}
                     />
+                    <div
+                    className="  py-4"
+                    >
+                        <p
+                        className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                        >Participants</p>
+                        <Separator
+                        className="my-2 "
+                        />
+                        <div
+                        className="flex flex-col gap-3"
+                        >
+                            {
+                                data.participants.map(p => (
+                                    <Participant
+                                    key={p.user_id}
+                                    user={p}
+                                    roleDisplay="side"
+                                    role={p.role}
+                                    />
+                                ))
+                            }
+                        </div>
+                        <Separator
+                        className="mt-2 "
+                        />
+                    </div>
                     <ReviewDetailRow
                     label="Topic Type"
                     value={TOPIC_TYPE_META[data?.topic_type!].label || ""}

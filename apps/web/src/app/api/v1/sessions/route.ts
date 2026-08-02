@@ -1,61 +1,48 @@
 import { withRequestContextAndErrorHandling } from "@/lib/api/wrap-routes";
 import { NextRequest, NextResponse } from "next/server";
 import { 
-    CreateSessionSchema,
+    CreateSessionRouteShema,
 } from "@/modules";
-import get_logger from "@/lib/logging/logger-factory";
-import { ValidationError } from "@/exceptions/ValidationError";
 import { createServices } from "@/modules/factory";
 import { db } from "@/db/client";
-
-const logger = get_logger();
+import { getRequestContext } from "@/lib/logging/request-contexts";
+import { ValidationError } from "@/exceptions/ValidationError";
+import { CreateSessionSuccess } from "@/shared/dto/sessions/create-session.dto";
+import get_logger from "@/lib/logging/logger-factory";
 
 export const POST = withRequestContextAndErrorHandling(async (req : NextRequest) => {
-    const user_id = req.headers.get("X-User-ID")!;
-    
+    const user_id = getRequestContext()?.user_id!;
+    const logger = get_logger();
+
     const formData = await req.formData();
-    const data : Record<string , FormDataEntryValue | FormDataEntryValue[]> = {};
-    for(const key of new Set(formData.keys())){
-        const val = formData.getAll(key);
-        if(key === "session_documents"){
-            data[key] = val;
-        }
-        else{
-            data[key] = val.length === 1 ? val[0] : val;
-        }
-    }
-    
-    const result = CreateSessionSchema.safeParse(data);
+    const session_service = createServices(db).sessions;
+    //parse and validate data
+    const data = session_service.parseFormData(formData);
+    const result = CreateSessionRouteShema.safeParse(data);
 
     if(!result.success){
-        logger.warn(
-            "Session creation request validation failed",
-            result.error.issues,
-        );
+        logger.info(
+            "Validation error",
+            {issues: result.error.issues},
+        )
         throw new ValidationError(
             "request payload Validation failed",
             result.error.issues,
-            422,
         );
     }
-    let session_id;
-    db.transaction(async tx => {
+    const session_id = await db.transaction(async tx => {
         const session_service = createServices(tx).sessions;
-        session_id = await session_service.createSession(
+        return session_service.createSession(
             user_id, 
             result.data
         );
     });
-    
-    return NextResponse.json(
-        {
+    const res = {
         success: true,
         data : {
             session_id,
             status : "ready",
         }
-    }, 
-    {
-        status : 201,
-    })
+    } satisfies CreateSessionSuccess;
+    return NextResponse.json(res, {status : 201,})
 })

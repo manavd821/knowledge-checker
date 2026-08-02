@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { FileText, Pencil } from 'lucide-react';
 import { SetStateAction } from "react";
-import { SessionForm } from "@/modules";
 import {
     Card,
     CardAction,
@@ -9,6 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { SessionForm } from "@/react/session-form/session-form.types";
 
 export function ReviewCardStep3({
     data, 
@@ -57,7 +57,7 @@ export function ReviewCardStep3({
                         className="text-xs mb-1 font-medium uppercase tracking-wide text-muted-foreground"
                         >Uploaded Documents</span>
                         {
-                            !data.session_documents 
+                            !data.session_documents.length
                             ? (<span>No documents uploaded</span>)
                             : (
                             <div

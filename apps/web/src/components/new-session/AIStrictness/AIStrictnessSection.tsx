@@ -8,21 +8,17 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { AI_STRICTNESS } from "@/db/enums";
-import { 
-    type AIStrictnessField, 
-    FormFieldProps,
-} from "@/modules";
+import { useSessionConfig } from "@/react/session-form/hooks/use-session-config";
 
-type Props = FormFieldProps<AIStrictnessField["value"]>;
-
-export function AIStrictnessSection({
-    value,
-    onChange,
-} : Props){
+export function AIStrictnessSection(){
+    const {
+        aiStrictness,
+        updateAIStrictness,
+    } = useSessionConfig();
     return (
         <Select
-        value={value}
-        onValueChange={onChange}
+        value={aiStrictness}
+        onValueChange={updateAIStrictness}
         >
         <SelectTrigger className="w-45">
             <SelectValue placeholder="Select strictness" />

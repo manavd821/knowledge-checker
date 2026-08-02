@@ -7,35 +7,29 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox";
-import {
-  DOMAIN_META,
-  type DomainField,
-  FormFieldProps,
-} from "@/modules";
+import { DOMAIN_META } from "@/react/session-form/sessions.meta";
+import { useSessionDetail } from "@/react/session-form/hooks/use-session-detail";
 
-type Props = FormFieldProps<DomainField["value"]>;
-
-
-
-export function DomainSection({
-  value,
-  onChange,
-}: Props){
+export function DomainSection(){
+    const {
+        domain,
+        updateDomain,
+    } = useSessionDetail();
     return (
             <Combobox 
             items={DOMAIN}
-            value={value}
-            onValueChange={onChange}
-            itemToStringLabel={(domain) => DOMAIN_META[domain].label}
+            value={domain}
+            onValueChange={updateDomain}
+            itemToStringLabel={(d) => DOMAIN_META[d].label}
             >
                 <ComboboxInput placeholder="Search domains..."/>
                 <ComboboxContent>
                     <ComboboxEmpty>No domain found.</ComboboxEmpty>
                     <ComboboxList>
-                        { (domain : typeof DOMAIN[number]) => {
-                            const { label } = DOMAIN_META[domain]
+                        { (d : typeof DOMAIN[number]) => {
+                            const { label } = DOMAIN_META[d]
                             return (
-                            <ComboboxItem key={domain} value={domain}>
+                            <ComboboxItem key={d} value={d}>
                                 {label}
                             </ComboboxItem>
                         )}}

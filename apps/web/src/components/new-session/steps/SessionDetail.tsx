@@ -1,110 +1,85 @@
-
 import { 
-    useForm,
     Controller,
-    useWatch,
-    type UseFormSetValue,
+    useFormContext,
 } from "react-hook-form";
 import {
-    StepFormData,
-} from "@/modules";
+    SessionForm,
+} from "@/react/session-form/session-form.types";
 import { SessionTypeField } from "@/components/new-session/SessionType/SessionTypeField";
 import { TopicTypeField } from "@/components/new-session/TopicType/TopicTypeField";
 import { DomainField } from "@/components/new-session/Domain/DomainField";
 import { RoleLevelField } from "@/components/new-session/RoleLevel/RoleLevelField";
 import { DifficultyField } from "@/components/new-session/Difficulty/DifficultyField";
 import { CustomDomainField } from "@/components/new-session/CustomDomain/CustomDomainField";
-import { useEffect } from "react";
+import { ParticipantField } from "@/components/new-session/Participants/ParticipantField";
+import { useSessionDetail } from "@/react/session-form/hooks/use-session-detail";
 
 
-export function SessionDetail({ 
-    control,
-    setValue,
-} : {
-    control : ReturnType<typeof useForm<StepFormData>>["control"];
-    setValue : UseFormSetValue<StepFormData>
-}){
-    const domain = useWatch({
+export function SessionDetail(){
+    const {
         control,
-        name: "domain"
-    });
+    } = useFormContext<SessionForm>();
+    const {
+        domain,
+    } = useSessionDetail();
 
-    useEffect(() => {
-        if(domain !== "custom"){
-            setValue("custom_domain", undefined);
-        }
-    },[domain, setValue]);
     return (
         <>
             <Controller
             name={"session_type"}
             control={control}
-            render={({field, fieldState}) => (
+            render={({ fieldState}) => (
                 <SessionTypeField 
-                    value = {field.value}
-                    onChange={field.onChange}
-                    errors={fieldState.error}
+                errors={fieldState.error}
                 />
             )}
+            />
+        
+            {/* <Controller
+            name={"creator_role"}
+            control={control}
+            render={() => (
+                <RoleField/>
+            )}
+            /> */}
+            <Controller
+            control={control}
+            name="participants"
+            render={({fieldState}) => (
+                <ParticipantField errors={fieldState.error}/>
+            ) }
             />
             <Controller
             name={"topic_type"}
             control={control}
-            render={({field, fieldState}) => (
-                <TopicTypeField 
-                value={field.value}
-                onChange={field.onChange}
-                errors={fieldState.error}
-                />
+            render={({fieldState}) => (
+                <TopicTypeField errors={fieldState.error}/>
             )}
             />
             <div className="flex flex-col sm:flex-row gap-2">
                     <Controller
                     name={"domain"}
                     control={control}
-                    render={({field, fieldState}) => (
-                        <DomainField 
-                        value={field.value}
-                        onChange={field.onChange}
-                        errors={fieldState.error}
-                        />
+                    render={({fieldState}) => (
+                        <DomainField errors={fieldState.error}/>
                     )}
                     />
                     <Controller
                     name={"role_level"}
                     control={control}
-                    render={({field, fieldState}) => (
-                        <RoleLevelField 
-                        value={field.value}
-                        onChange={field.onChange}
-                        errors={fieldState.error}
-                        />
+                    render={({fieldState}) => (
+                        <RoleLevelField errors={fieldState.error}/>
                     )}
                     />
             </div>
-            {
-                domain === "custom" && (
-                    <Controller
-                    control={control}
-                    name="custom_domain"
-                    render={({field,fieldState}) => (
-                        <CustomDomainField
-                        field={field}
-                        fieldState={fieldState}
-                        />
-                    )}
-                    />
-                )
-            }
+
+            { domain === "custom" && ( <CustomDomainField />) }
+
             <Controller
             name="difficulty"
             control={control}
-            render={({field, fieldState}) => (
-                <DifficultyField 
-                value={field.value}
-                onChange={field.onChange}
-                errors={fieldState.error}
-                />
+            render={({fieldState}) => (
+                <DifficultyField errors={fieldState.error}/>
             )}
             />
         </>

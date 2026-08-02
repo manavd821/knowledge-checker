@@ -1,38 +1,20 @@
-import { StepFormData } from "@/modules";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { CustomInstructionField } from "@/components/new-session/CustomInstruction/CustomInstructionField";
 import { DocumentUploadField } from "@/components/new-session/DocumentUpload/DocumentUploadField";
+import { SessionForm } from "@/react/session-form/session-form.types";
 
-export function AdditionalContext({
-    control, 
-} : {
-    control : ReturnType<typeof useForm<StepFormData>>["control"]
-}){
+export function AdditionalContext(){
+    const { control } = useFormContext<SessionForm>();
     return (
         <>
-            <Controller
-            control={control}
-            name="custom_instructions"
-            render={({field, fieldState}) => (
-                <CustomInstructionField
-                value={field.value}
-                onChange={field.onChange}
-                errors={fieldState.error}
-                />
-            )}
-            />
+            <CustomInstructionField />
             <Controller
             control={control}
             name="session_documents"
-            render={({field, fieldState}) => (
-                <DocumentUploadField
-                value={field.value}
-                onChange={field.onChange}
-                errors={fieldState.error}
-                />
+            render={({fieldState}) => (
+                <DocumentUploadField errors={fieldState.error}/>
             )}
             />
-            
         </>
     )
 }

@@ -1,28 +1,19 @@
 import { Field, FieldError } from "@/components/ui/field";
-import { 
-    type SessionDurationField, 
-    FormFieldProps,
-} from "@/modules";
 import { SectionHeading } from "@/components/new-session/SectionHeading";
 import { SessionDurationSection } from "@/components/new-session/SessionDuration/SessionDurationSection";
+import type{ SessionDurationField } from "@/react/session-form/session-form.types";
+import { type FieldError as ErrorType } from "react-hook-form";
 
-type Props = FormFieldProps<SessionDurationField["value"]>;
 
-export function SessionDurationField({
-    value,
-    onChange,
-    errors,
-} : Props){
-
+export function SessionDurationField({ errors }: {
+    errors: ErrorType | undefined
+}){
     return (
         <Field>
             <SectionHeading>Session Duration</SectionHeading>
             <FieldError errors={[errors]}/>
 
-            <SessionDurationSection
-            value={value}
-            onChange={onChange}
-            />
+            <SessionDurationSection />
 
         </Field>
     )

@@ -11,6 +11,7 @@ export const users = pgTable("users",
     email : text().notNull().unique(),
     first_name : text(),
     last_name : text(),
+    image_url: text(),
     created_at : timestamp({
         withTimezone : true,
     }).notNull().defaultNow(),

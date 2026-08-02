@@ -7,7 +7,7 @@ import {
 import { StoredObject } from "@/storage/types/stored-object";
 import { FileType } from "@/modules";
 
-export class AppWrite implements IObjectStorage{
+export class AppWriteStorage implements IObjectStorage{
     bucket_id: string;
 
     constructor(private readonly storage: Storage){

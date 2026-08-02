@@ -1,10 +1,20 @@
-import { CreateSessionSchema } from "@/modules/sessions/sessions.schema";
+import { 
+    CreateSessionRouteShema, 
+    CreateSessionSchema, 
+    LiveSessionInfoSchema,
+} from "@/modules/sessions/sessions.schema";
 import { sessions } from "@/modules/sessions/sessions.table";
 import { z } from "zod";
-import { InferInsertModel } from "drizzle-orm";
+import { 
+    InferInsertModel, 
+    InferSelectModel,    
+} from "drizzle-orm";
+import { ROLE, STATUS } from "@/db/enums";
 
+export type CreateSessionRoute = z.infer<typeof CreateSessionRouteShema>;
 export type CreateSession = z.infer<typeof CreateSessionSchema>;
 
+export type CreatorRole = CreateSessionRoute["creator_role"];
 export type SessionType = CreateSession["session_type"];
 export type TopicType = CreateSession["topic_type"];
 export type RoleLevel = CreateSession["role_level"];
@@ -20,4 +30,11 @@ export type CustomInstructions = CreateSession["custom_instructions"];
 export type SessionDocuments = CreateSession["session_documents"];
 export type ScheduledAt = CreateSession["scheduled_at"];
 
+export type Status = typeof STATUS[number];
+export type Role = typeof ROLE[number];
+
 export type NewSession = InferInsertModel<typeof sessions>;
+export type SelectSession = InferSelectModel<typeof sessions>;
+
+export type LiveSessionInfo = z.infer<typeof LiveSessionInfoSchema>;
+

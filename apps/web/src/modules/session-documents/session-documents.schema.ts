@@ -1,5 +1,5 @@
 import {z} from "zod";
-import { MIME_TO_FILE_TYPE } from "@/modules/sessions/sessions.meta";
+import { MIME_TO_FILE_TYPE } from "@/react/session-form/sessions.meta";
 
 export const SessionDocumentSchema = z
     .instanceof(File)
