@@ -1,4 +1,6 @@
 
+from uuid import UUID
+from datetime import datetime
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -9,7 +11,6 @@ from models.enums import (
     ContentType,
     Difficulty, 
     Speaker,
-    TopicType,
 )
 from enum import Enum
     
@@ -139,18 +140,57 @@ TurnEvaluation = (
 class CreateTurn(BaseModel):
     model_config = ConfigDict(
         use_enum_values=True,
-        from_attributes=True,
+    )
+
+    session_id: UUID
+    particiapant_id: str | None = None
+
+    speaker: Speaker
+
+    content: str
+
+    content_type: ContentType
+
+    user_audio_duration_sec: float | None = Field(
+        default=None,
+        ge=0.0,
+    )
+
+    turn_evaluation: TurnEvaluation | None = None
+
+    tokens_used: int | None = Field(
+        default=None,
+        ge=0,
+    )
+
+    latency_ms: int | None = Field(
+        default=None,
+        ge=0,
     )
     
-    turn_number : int
-    speaker : Speaker
-    content : str
-    content_type : ContentType
-    
-    user_audio_duration_sec : float | None = None
-    
-    turn_evaluation : TurnEvaluation | None = None
-    
-    tokens_used : int | None = None
-    latency_ms : int | None = None
-    
+class SelectTurn(BaseModel):
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
+    particiapant_id: str | None = None
+    turn_id: UUID
+    session_id: UUID
+
+    turn_number: int
+
+    speaker: Speaker
+    content: str
+    content_type: ContentType
+
+    user_audio_duration_sec: float | None
+
+    evaluation_score: float | None
+    evaluation_feedback: str | None
+    evaluation_rubric: dict | None
+    difficulty_applied: Difficulty | None
+
+    tokens_used: int | None
+    latency_ms: int | None
+
+    created_at: datetime
+    updated_at: datetime

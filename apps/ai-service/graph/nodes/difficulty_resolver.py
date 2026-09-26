@@ -1,38 +1,38 @@
-from infrastructure import get_logger
-from models import (
-    InterviewGraphState,
-    Difficulty,
-)
-from graph.dependencies import get_difficulty_service
-
-logger = get_logger(__name__)
-
-async def difficulty_resolver_node(state : InterviewGraphState) -> dict:
-    logger.info(
-        "difficulty resolver node start",
-        session_id = state.session_id
-    )
-    if state.fundamental_phase:
-        logger.info(
-            "difficulty resolver node completed",
-            session_id = state.session_id,
-            current_difficulty = str(Difficulty.EASY),
+from models.enums import Difficulty
+from models.graph_state import InterviewGraphState
+from services.difficulty_service import DifficultyService
+class DifficultyResolverNode:
+    def __init__(
+        self,
+        difficulty_service: DifficultyService,
+    ) -> None:
+        self._difficulty_service = difficulty_service
+        
+    async def __call__(
+        self,
+        state: InterviewGraphState,
+    ) -> dict:
+        runtime = state.context.runtime
+        difficulty = (
+            Difficulty.EASY
+            if runtime.fundamental_phase
+            else self._difficulty_service.resolve_difficulty(
+                state.context.session.difficulty,
+                runtime.overall_score,
+                runtime.previous_score,
+            )
+        )
+        updated_runtime = runtime.model_copy(
+            update={
+                "current_difficulty": difficulty,
+            }
+        )
+        updated_context = state.context.model_copy(
+            update={
+                "runtime" : updated_runtime,
+            }
         )
         return {
-            "current_difficulty" : Difficulty.EASY,
+            "context" : updated_context,
         }
-    difficulty_service = get_difficulty_service()
-    resolved_difficulty = difficulty_service.resolve_difficulty(
-        defined_difficulty=state.defined_difficulty,
-        overall_score=state.overall_score,
-        previous_score=state.previous_score,
-    )
-    logger.info(
-            "difficulty resolver node completed",
-            session_id = state.session_id,
-            current_difficulty = str(resolved_difficulty),
-        )
-    return {
-        "current_difficulty" : resolved_difficulty,
-    }
     

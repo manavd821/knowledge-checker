@@ -1,42 +1,30 @@
 from datetime import datetime
-import uuid
+from uuid import UUID
 from typing import Any
 
 from sqlalchemy import (
     DateTime,
     ForeignKey,
-    Float,
     Index,
     Text,
-    func,
+    Double
 )
-from sqlalchemy.dialects.postgresql import (
-    UUID as PG_UUID,
-    JSONB,
-)
+from sqlalchemy.dialects.postgresql import JSONB 
 from sqlalchemy.orm import Mapped, mapped_column
 
 from models.orm.base import Base
+from typing import Any
 
 
 class EvaluationSummary(Base):
     __tablename__ = "evaluation_summaries"
 
-    __table_args__ = (
-        Index(
-            "evaluation_summaries_session_id_idx",
-            "session_id",
-        ),
-    )
-
-    evaluation_summary_id: Mapped[uuid.UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+    evaluation_summary_id: Mapped[UUID] = mapped_column(
         primary_key=True,
-        default=uuid.uuid4,
+        server_default="gen_random_uuid()",
     )
 
-    session_id: Mapped[uuid.UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+    session_id: Mapped[UUID] = mapped_column(
         ForeignKey(
             "sessions.session_id",
             ondelete="CASCADE",
@@ -46,43 +34,45 @@ class EvaluationSummary(Base):
     )
 
     overall_score: Mapped[float] = mapped_column(
-        Float,
+        Double,
         nullable=False,
     )
 
-    strength_areas: Mapped[dict[str, Any] | None] = mapped_column(
+    strength_areas: Mapped[list[dict[str, Any]] | None] = mapped_column(
         JSONB,
-        nullable=True,
     )
 
-    weak_areas: Mapped[dict[str, Any] | None] = mapped_column(
+    weak_areas: Mapped[list[dict[str, Any]] | None] = mapped_column(
         JSONB,
-        nullable=True,
     )
 
     progression_notes: Mapped[str | None] = mapped_column(
         Text,
-        nullable=True,
     )
 
     detailed_feedback: Mapped[str | None] = mapped_column(
         Text,
-        nullable=True,
     )
 
-    recommendations: Mapped[dict[str, Any] | None] = mapped_column(
+    recommendations: Mapped[list[dict[str, Any]] | None] = mapped_column(
         JSONB,
-        nullable=True,
     )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        server_default=func.now(),
         nullable=False,
+        server_default="now()",
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        server_default=func.now(),
         nullable=False,
+        server_default="now()",
+    )
+
+    __table_args__ = (
+        Index(
+            "evaluation_summaries_session_id_idx",
+            "session_id",
+        ),
     )

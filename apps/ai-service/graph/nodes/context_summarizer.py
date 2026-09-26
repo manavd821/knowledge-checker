@@ -1,31 +1,44 @@
-from infrastructure import get_logger
-from models import (
+from typing import Any
+
+from lib.logging.logging import get_logger
+from models.graph_state import (
     InterviewGraphState,
 )
-from graph.dependencies import (
-    node_db_session,
-    get_context_service,
-    get_session_context_repo
-)
+from services.context_service import ContextService
+from services.token_service import TokenService
 
 logger = get_logger(__name__)
-async def context_summarizer_node(state : InterviewGraphState) -> dict:
-    logger.info(
-        "context summarizer node start",
-        session_id = state.session_id,
-    )
-    context_service = get_context_service()
-    async with node_db_session() as session:
-        session_context_repo = get_session_context_repo(session)
-        active_context = await context_service.summarize_and_update(
-            state.session_id,
-            active_context=state.active_context,
-            repo = session_context_repo,
+
+class ContextSummerizerNode:
+    def __init__(
+        self,
+        ctx_service: ContextService,
+        token_service: TokenService,
+    ) -> None:
+        self._ctx_service = ctx_service
+        self._token_service = token_service
+        
+    async def __call__(
+        self, 
+        state: InterviewGraphState
+    ) -> dict:
+        updated_ctx = await self._ctx_service.summarize_ctx(
+            state.context.runtime.active_context
         )
-    logger.info(
-        "context summarizer node completed",
-        session_id = state.session_id,
-    )
-    return {
-        "active_context" : active_context,
-    }
+        ctx_tokens = self._token_service.estimate_tokens(updated_ctx)
+        
+        updated_runtime = state.context.runtime.model_copy(
+            update={
+                "active_context" : updated_ctx,
+                "active_context_tokens" : ctx_tokens,
+            }
+        )
+        updated_context = state.context.model_copy(
+            update={
+                "context" : updated_runtime
+            }
+        )
+        
+        return {
+            "context" : updated_context
+        }

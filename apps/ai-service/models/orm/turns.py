@@ -1,27 +1,20 @@
 from datetime import datetime
-import uuid
-from typing import Any
+from uuid import UUID
 
 from sqlalchemy import (
     DateTime,
+    Double,
     ForeignKey,
     Index,
+    Integer,
     Text,
     UniqueConstraint,
-    Float,
-    func,
 )
-from sqlalchemy.dialects.postgresql import (
-    UUID as PG_UUID,
-    JSONB,
-)
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
-from models.orm.base import (
-    Base,
-    pg_value_enum,
-)
-from models import (
+from models.orm.base import Base, pg_value_enum
+from models.enums import (
     Speaker,
     ContentType,
     Difficulty,
@@ -31,34 +24,27 @@ from models import (
 class Turn(Base):
     __tablename__ = "turns"
 
-    __table_args__ = (
-        Index(
-            "turns_session_id_idx",
-            "session_id",
-        ),
-        UniqueConstraint(
-            "session_id",
-            "turn_number",
-            name="session_turn_unique",
-        ),
-    )
-
-    turn_id: Mapped[uuid.UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+    turn_id: Mapped[UUID] = mapped_column(
         primary_key=True,
-        default=uuid.uuid4,
+        server_default="gen_random_uuid()",
     )
 
-    session_id: Mapped[uuid.UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+    session_id: Mapped[UUID] = mapped_column(
         ForeignKey(
             "sessions.session_id",
             ondelete="CASCADE",
         ),
         nullable=False,
     )
-
+    participant_id: Mapped[UUID] = mapped_column(
+        ForeignKey(
+            "session_participants.participant_id",
+            ondelete="CASCADE"
+        ),
+        nullable=True
+    )
     turn_number: Mapped[int] = mapped_column(
+        Integer,
         nullable=False,
     )
 
@@ -84,23 +70,19 @@ class Turn(Base):
     )
 
     user_audio_duration_sec: Mapped[float | None] = mapped_column(
-        Float,
-        nullable=True,
+        Double,
     )
 
     evaluation_score: Mapped[float | None] = mapped_column(
-        Float,
-        nullable=True,
+        Double,
     )
 
     evaluation_feedback: Mapped[str | None] = mapped_column(
         Text,
-        nullable=True,
     )
 
-    evaluation_rubric: Mapped[dict[str, Any] | None] = mapped_column(
+    evaluation_rubric: Mapped[dict | None] = mapped_column(
         JSONB,
-        nullable=True,
     )
 
     difficulty_applied: Mapped[Difficulty | None] = mapped_column(
@@ -108,25 +90,37 @@ class Turn(Base):
             Difficulty,
             pg_name="difficulty",
         ),
-        nullable=True,
     )
 
     tokens_used: Mapped[int | None] = mapped_column(
-        nullable=True,
+        Integer,
     )
 
     latency_ms: Mapped[int | None] = mapped_column(
-        nullable=True,
+        Integer,
     )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        server_default=func.now(),
         nullable=False,
+        server_default="now()",
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        server_default=func.now(),
         nullable=False,
+        server_default="now()",
+    )
+
+    __table_args__ = (
+        Index(
+            "turns_session_id_idx",
+            "session_id",
+        ),
+        UniqueConstraint(
+            "session_id",
+            "turn_number",
+            "speaker",
+            name="session_turn_unique",
+        ),
     )

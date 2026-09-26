@@ -1,8 +1,8 @@
 
 from langchain_core.output_parsers import StrOutputParser
-from infrastructure import LLMProvider
-from models import (
-    LLMTask,
+from llm.enums import Tasks
+from llm.gateway import LLMGateway
+from models.enums import (
     TopicType,
     Domain,
     AI_STRICTNESS,
@@ -12,14 +12,18 @@ from prompts.registry import get_prompt
 
 
 class HintService:
+    task = Tasks.HINT_GEN
     def __init__(
         self,
-        llm_provider : LLMProvider,
+        llm_gateway : LLMGateway,
     ) -> None:
-        llm = llm_provider.get_model_for_task(LLMTask.HINT_GEN)
-        prompt = get_prompt(LLMTask.HINT_GEN)
-        self._chain = prompt | llm | StrOutputParser(name="HintService")
+        self._llm_gateway = llm_gateway
     
+    def get_chain(self):
+        llm = self._llm_gateway.get_model(self.task)
+        prompt = get_prompt(self.task)
+        return prompt | llm | StrOutputParser(name="HintService")
+        
     async def generate_hint(
         self,
         topic_type : TopicType | None,
@@ -32,7 +36,8 @@ class HintService:
         active_context : str | None,
         domain : Domain | None,
     ) -> str:
-        return await self._chain.ainvoke({
+        chain = self.get_chain()
+        return await chain.ainvoke({
             "topic_type" : topic_type,
             "current_difficulty" : current_difficulty,
             "ai_strictness" : ai_strictness,

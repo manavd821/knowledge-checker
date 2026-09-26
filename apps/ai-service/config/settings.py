@@ -1,7 +1,8 @@
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from infrastructure import get_logger
 from dotenv import load_dotenv
+
+from lib.logging.logging import get_logger
 
 load_dotenv()
 
@@ -14,18 +15,21 @@ class Settings(BaseSettings):
     UPSTASH_REDIS_URL: str
     
     REDIS_URL : str
+    GRAPH_REDIS_TTS_MINUTES: int
     
     DEEPGRAM_API_KEY : str
     LIVEKIT_URL : str
     LIVEKIT_API_KEY: str
     LIVEKIT_API_SECRET : str
     CARTESIA_API_KEY: str
-    THRESHOLD_SUMMARIZE: int
     GOOGLE_API_KEY : str
     
     LANGCHAIN_API_KEY : str
     LANGCHAIN_TRACING_V2 : bool
     LANGCHAIN_PROJECT : str
+    
+    THRESHOLD_SUMMARIZE: int
+    FUNDAMENTAL_PHASE_COUNT: int
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 @lru_cache

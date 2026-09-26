@@ -1,5 +1,4 @@
 from datetime import datetime
-import uuid
 
 from sqlalchemy import (
     DateTime,
@@ -11,32 +10,23 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
+from uuid import UUID
 
 from models.orm.base import (
     Base,
     pg_value_enum,
 )
-from models import FileType
-
+from models.enums import FileType
 
 class SessionDocument(Base):
     __tablename__ = "session_documents"
 
-    __table_args__ = (
-        Index(
-            "session_documents_session_id_idx",
-            "session_id",
-        ),
-    )
-
-    session_document_id: Mapped[uuid.UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+    session_document_id: Mapped[UUID] = mapped_column(
         primary_key=True,
-        default=uuid.uuid4,
+        server_default="gen_random_uuid()",
     )
 
-    session_id: Mapped[uuid.UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+    session_id: Mapped[UUID] = mapped_column(
         ForeignKey(
             "sessions.session_id",
             ondelete="CASCADE",
@@ -44,7 +34,10 @@ class SessionDocument(Base):
         nullable=False,
     )
 
-    file_name: Mapped[str] = mapped_column(nullable=False)
+    file_name: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
 
     file_type: Mapped[FileType] = mapped_column(
         pg_value_enum(
@@ -55,33 +48,39 @@ class SessionDocument(Base):
     )
 
     storage_url: Mapped[str] = mapped_column(
+        Text,
         nullable=False,
     )
 
     extracted_text: Mapped[str | None] = mapped_column(
         Text,
-        nullable=True,
     )
 
     token_count: Mapped[int | None] = mapped_column(
         Integer,
-        nullable=True,
     )
 
     uploaded_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        server_default=func.now(),
         nullable=False,
+        server_default="now()",
     )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        server_default=func.now(),
         nullable=False,
+        server_default="now()",
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        server_default=func.now(),
         nullable=False,
+        server_default="now()",
+    )
+
+    __table_args__ = (
+        Index(
+            "session_documents_session_id_idx",
+            "session_id",
+        ),
     )

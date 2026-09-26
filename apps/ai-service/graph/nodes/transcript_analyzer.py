@@ -1,29 +1,28 @@
-from models import InterviewGraphState
-from infrastructure import get_logger
-from graph.dependencies import (
-    get_token_service,
-    get_context_service,
-)
+from models.graph_state import InterviewGraphState
+from services.context_service import ContextService
+from services.token_service import TokenService
 
-logger = get_logger(__name__)
-
-async def transcript_analyzer_node(state : InterviewGraphState) -> dict:
-    logger.info(
-        "transcript analyzer node start",
-        session_id = state.session_id,
-    )
-    token_service = get_token_service()
-    context_service = get_context_service()
-    
-    transcript_tokens = token_service.estimate_tokens(state.user_transcript)
-    context_tokens = token_service.estimate_tokens(state.active_context)
-    need_summerization = context_service.decide_context_action(context_tokens)
-    logger.info(
-        "transcript analyzer node completed",
-        session_id = state.session_id,
-    )
-    return {
-        "transcript_tokens" : transcript_tokens,
-        "context_tokens" : context_tokens,
-        "need_summerization" : need_summerization,
-    }
+class TranscriptAnalyzerNode:
+    def __init__(
+        self,
+        token_service : TokenService,
+        context_service: ContextService,
+    ) -> None:
+        self._token_service = token_service
+        self._context_service = context_service
+        
+    async def __call__(
+        self,
+        state: InterviewGraphState,
+    ) -> dict:
+        transcript_tokens = self._token_service.estimate_tokens(
+            state.user_transcript,
+        )
+        needs_summarization = self._context_service.decide_context_action(
+            state.context.runtime.context_tokens,
+        )
+        
+        return {
+            "needs_summarization" : needs_summarization,
+            "transcript_tokens" : transcript_tokens,
+        }

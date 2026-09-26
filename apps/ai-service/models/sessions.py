@@ -1,81 +1,96 @@
 from datetime import datetime
+from typing import Literal
+from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
-from models import (
-    AI_STRICTNESS,
-    Difficulty,
+from pydantic import BaseModel, ConfigDict, Field
+
+from models.enums import (
+    STATUS,
     SessionType,
     TopicType,
     RoleLevel,
+    Difficulty,
     Domain,
+    AI_STRICTNESS,
 )
+from models.session_runtime_context import SessionRuntimeContext
+class SessionCreate(BaseModel):
+    created_by: str
 
-class SessionConfig(BaseModel):
-    model_config = ConfigDict(
-        use_enum_values=True,
-        from_attributes=True,
-    )
-
-    # User
-    user_id: str
-
-    # Session setup
     session_type: SessionType
     topic_type: TopicType
     role_level: RoleLevel
-
-    # Interview configuration
     difficulty: Difficulty
     domain: Domain
+
     custom_domain: str | None = None
 
-    duration_minutes: int
+    duration_minutes: Literal[15, 20, 30, 45, 60, 90, 120]
+
     ai_strictness: AI_STRICTNESS
 
-    # Features
-    realtime_transcript: bool = False
+    realtime_transcript: bool = True
     ai_hints_enabled: bool = False
     camera_required: bool = False
 
-    # Customization
     custom_instructions: str | None = None
-    session_brief: str
 
-class SessionMeta(SessionConfig):
-    model_config = ConfigDict(
-        use_enum_values=True,
-        from_attributes=True,
-    )
-    # Runtime metadata
-    started_at: datetime | None = None
+    scheduled_at: datetime
 
-    # Runtime-only fields        
-    worker_id : str | None = None # LiveKit job.id of the CURRENTLY attached worker
-    room_sid : str | None = None # LiveKit's internal room sid, only if you have a concrete use for it
+class SelectSession(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    # session_id: str
+    created_by: str
+
+    status: STATUS
+
+    session_type: SessionType
+    topic_type: TopicType
+    role_level: RoleLevel
+    difficulty: Difficulty
+    domain: Domain
+
+    custom_domain: str | None
+
+    duration_minutes: int
+
+    ai_strictness: AI_STRICTNESS
+
+    realtime_transcript: bool
+    ai_hints_enabled: bool
+    camera_required: bool
+
+    custom_instructions: str | None
+
+    session_brief: str | None
+    session_brief_tokens: int | None
+
+    scheduled_at: datetime
+    started_at: datetime | None
+    ended_at: datetime | None
+
+    actual_duration_sec: int | None
+
+    overall_score: float | None
+
+    total_turns: int | None
+    questions_asked: int | None
+
+    created_at: datetime
+    updated_at: datetime
+
+class SessionContext(BaseModel):
     
-class TurnState(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     
-    model_config = ConfigDict(
-        use_enum_values=True,
-    )
-    
-    current_turn_number : int
-    current_difficulty : Difficulty | None = None
-    overall_score_running : float | None = None
-    previous_score : float | None = None
-    fundamental_phase : bool
-    questions_asked_count : int
-    
-class TurnStateUpdate(BaseModel):
-    
-    model_config = ConfigDict(
-        use_enum_values=True,
-    )
-    
-    current_turn_number : int | None = None
-    current_difficulty : Difficulty | None = None
-    overall_score_running : float | None = None
-    previous_score : float | None = None
-    fundamental_phase : bool | None = None
-    questions_asked_count : int | None = None
-    
+    session: SelectSession
+    runtime: SessionRuntimeContext
+
+class SessionRuntimeContextUpdate(BaseModel):
+    fundamental_phase: bool
+    current_difficulty: Difficulty
+    previous_score: float | None
+    overall_score: float | None
+    active_context: str | None
+    context_tokens: int

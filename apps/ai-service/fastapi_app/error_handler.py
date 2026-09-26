@@ -1,8 +1,8 @@
 from fastapi import Request
-from exceptions.base import AppError
+from exceptions.AppError import AppError
 from fastapi.responses import JSONResponse
-from infrastructure import get_logger
 from fastapi_app.bootstrap.utils import get_status_code
+from lib.logging.logging import get_logger
 
 logger = get_logger(__name__)
 

@@ -1,23 +1,21 @@
-from infrastructure import LLMProvider
-from models import (
-    LLMTask,
-    TechnicalTurnEvaluation,
-    BehavioralTurnEvaluation,
-    DebateTurnEvaluation,
-    GeneralTurnEvaluation,
+from llm.enums import Tasks
+from llm.gateway import LLMGateway
+from models.enums import (
     TopicType,
     Difficulty,
     AI_STRICTNESS,
     Domain,
 )
+from models.turns import BehavioralTurnEvaluation, DebateTurnEvaluation, GeneralTurnEvaluation, TechnicalTurnEvaluation
 from prompts.registry import get_prompt
 
 class EvaluationService:
+    task = Tasks.TURN_EVALUATION
     def __init__(
         self,
-        llm_provider : LLMProvider,
+        llm_gateway : LLMGateway,
     ) -> None:
-        self._llm_provider = llm_provider
+        self._llm_gateway = llm_gateway
     
     def _get_evaluation_schema(
         self,
@@ -37,7 +35,7 @@ class EvaluationService:
             
     async def evaluate_turn(
         self,
-        topic_type : TopicType | None,
+        topic_type : TopicType,
         difficulty : Difficulty | None,
         ai_strictness : AI_STRICTNESS | None,
         question : str | None,
@@ -47,14 +45,12 @@ class EvaluationService:
         domain : Domain | None,
         custom_instructions : str | None,
     ):
-        if topic_type is None:
-            raise ValueError("topic_type cannot be None")
         schema = self._get_evaluation_schema(topic_type)
-        llm = self._llm_provider.get_structured_model_for_task(
-            task=LLMTask.TURN_EVALUATION,
+        llm = self._llm_gateway.get_structure_model(
+            self.task,
             schema=schema,
         )
-        prompt = get_prompt(LLMTask.TURN_EVALUATION)
+        prompt = get_prompt(self.task)
         chain = prompt | llm
         return await chain.ainvoke({
             "topic_type" : str(topic_type),

@@ -1,9 +1,6 @@
-
-from models import (
+from models.enums import (
     Difficulty,
 )
-
-
 class DifficultyService:
     
     def __init__(self) -> None:

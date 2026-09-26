@@ -1,39 +1,48 @@
-from infrastructure import get_logger
-from graph.dependencies import (
-    get_question_service,
-)
-from models import (
-    InterviewGraphState,
-    ContentType,
-)
+from models.enums import ContentType
+from models.graph_state import InterviewGraphState
+from services.question_service import QuestionService
 
-logger = get_logger(__name__)
-
-async def question_generator_node(state : InterviewGraphState) -> dict:
-    logger.info(
-        "question generator node start",
-        session_id = state.session_id,
-    )
-    question_service = get_question_service()
-    new_question = await question_service.generate_question(
-        topic_type=state.topic_type,
-        domain=state.domain,
-        current_difficulty=state.current_difficulty,
-        ai_strictness=state.ai_strictness,
-        fundamental_phase=state.fundamental_phase,
-        session_brief=state.session_brief,
-        custom_instructions=state.custom_instructions,
-        overall_score=state.overall_score,
-        previous_score=state.previous_score,
-        active_context=state.active_context,
-    )
-    logger.info(
-        "question generator node completed",
-        session_id = state.session_id,
-    )
-    return {
-        "next_question" : new_question,
-        "content_type" : ContentType.QUESTION,
-    }
+class QuestionGeneratorNode:
+    def __init__(
+        self,
+        question_service: QuestionService,
+    ) -> None:
+        self._question_service = question_service
     
-    
+    async def __call__(
+        self,
+        state: InterviewGraphState,
+    ) -> dict:
+        session = state.context.session
+        runtime = state.context.runtime
+        
+        # generate new question
+        new_question = await self._question_service.generate_question(
+            topic_type=session.topic_type,
+            domain=session.domain,
+            current_difficulty=runtime.current_difficulty,
+            ai_strictness=session.ai_strictness,
+            fundamental_phase=runtime.fundamental_phase,
+            session_brief=session.session_brief,
+            custom_instructions=session.custom_instructions,
+            overall_score=session.overall_score,
+            previous_score=runtime.previous_score,
+            active_context=runtime.active_context,
+        )
+        # update question asked
+        updated_runtime_ctx = runtime.model_copy(
+            update={
+                "questions_asked" : runtime.questions_asked + 1
+            }
+        )
+        updated_context = state.context.model_copy(
+            update={
+                "runtime" : updated_runtime_ctx,
+            }
+        )
+        
+        return {
+            "context" : updated_context,
+            "next_question": new_question,
+            "content_type" : ContentType.QUESTION,
+        }
