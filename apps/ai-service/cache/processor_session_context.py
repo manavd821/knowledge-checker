@@ -1,5 +1,7 @@
 from typing import Any
 
+from config.settings import get_settings
+from events.payloads import SessionContextUpdate
 from lib.redis.cache.base import IRedisDB
 from models.sessions import SessionContext
 from exceptions.CacheMissError import CacheMissError
@@ -27,7 +29,7 @@ class ProcessorSessionContextCache:
     ) -> None:
         await self._redis.set(
             self._key(session_id),
-            data.model_dump(),
+            data.model_dump(mode="json"),
             ttl_seconds,
         )
 
@@ -63,7 +65,27 @@ class ProcessorSessionContextCache:
             current,
             ttl_seconds,
         )
-
+    async def update_runtime(
+        self,
+        session_id: str,
+        update: SessionContextUpdate
+    ):
+        current = await self.get(session_id)
+        settings = get_settings()
+        if current is None:
+            raise CacheMissError(
+                f"Session context not found: {session_id}"
+            )
+        current = current.model_dump()
+        current["runtime"].update(
+            update.model_dump()
+        )
+        await self._redis.set(
+            self._key(session_id),
+            current,
+            settings.GRAPH_REDIS_TTL_MINUTES * 60,
+        )
+        
     async def delete(
         self,
         session_id: str,

@@ -8,7 +8,6 @@ from events.handlers.conversation_event_publisher import ConversationEventPublis
 from events.registry import EventRegistry
 from graph.dependencies import get_graph_runtime, get_graph_selector
 from lib.redis.factory import get_stream_redis_cloud
-from livekit_worker.interview_agent_registry import InterviewAgentRegistry
 from services.factory import get_session_context_store, get_session_runtime_ctx_service
 from events.event_publisher import EventPublisher
 
@@ -17,9 +16,7 @@ def get_event_registry() -> EventRegistry:
 
 
 @lru_cache
-def get_event_bus(
-    interview_agent_registry: InterviewAgentRegistry
-):
+def get_event_bus():
     bus = EventBus(get_event_registry())
     
     stream = get_stream_redis_cloud()
@@ -34,9 +31,7 @@ def get_event_bus(
         event_publisher=event_publisher,
         session_runtime_ctx_service=get_session_runtime_ctx_service(),
     )
-    interview_response_ready = InterviewerResponseReadyHandler(
-        interview_agent_registry,
-    )
+    interview_response_ready = InterviewerResponseReadyHandler()
     
     bus.subscribe(
         LiveSessionEvent.CANDIDATE_TURN_COMPLETED,
@@ -61,7 +56,8 @@ def get_event_bus(
         interview_response_ready,
     )
     
-    
     return bus
-    
-    
+
+def get_event_publisher():
+    bus = get_event_bus()
+    return EventPublisher(bus)

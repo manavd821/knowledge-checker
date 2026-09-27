@@ -1,21 +1,22 @@
-from typing import TYPE_CHECKING
 from uuid import UUID
-from livekit_worker.agent import InterviewAgent
+from livekit_worker.interview_agent_like import InterviewAgentLike
     
 class InterviewAgentRegistry:
-    def __init__(self):
-        self._agents: dict[UUID, InterviewAgent] = {}
+    
+    _agents : dict[UUID, "InterviewAgentLike"] = {}
 
-    def register(self, session_id: UUID, agent: InterviewAgent) -> None:
-        self._agents[session_id] = agent
+    @classmethod
+    def register(cls, session_id: UUID, agent) -> None:
+        cls._agents[session_id] = agent
 
-    def get(self, session_id: UUID) -> InterviewAgent:
+    @classmethod
+    def get(cls, session_id: UUID):
         try:
-            return self._agents[session_id]
+            return cls._agents[session_id]
         except KeyError:
             raise RuntimeError(
                 f"InterviewAgent not found for session: {session_id}"
             )
-
-    def remove(self, session_id: UUID) -> None:
-        self._agents.pop(session_id, None)
+    @classmethod
+    def remove(cls, session_id: UUID) -> None:
+        cls._agents.pop(session_id, None)

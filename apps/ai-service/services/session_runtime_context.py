@@ -29,16 +29,24 @@ class SessionRuntimeContextService:
         data = await self._session_runtime_ctx_repo.get_runtime_ctx(session_id)
         # set in cache
         if data:
-            ttl_seconds = get_settings().GRAPH_REDIS_TTS_MINUTES * 60
+            ttl_seconds = get_settings().GRAPH_REDIS_TTL_MINUTES * 60
             await self._session_runtime_ctx_cache.set(str(session_id), data, ttl_seconds)
         return data
     
     async def create_ctx(
         self,
         data: InsertSessionRuntimeContext,
-    ) -> str:
-        runtime_ctx_id =  await self._session_runtime_ctx_repo.create(data)
-        return runtime_ctx_id
+    ) -> UUID:
+        settings = get_settings()
+        # store in db
+        ctx =  await self._session_runtime_ctx_repo.create(data)
+        # store in redis cache
+        await self._session_runtime_ctx_cache.set(
+            str(ctx.session_id),
+            ctx,
+            settings.GRAPH_REDIS_TTL_MINUTES * 60
+        )
+        return ctx.session_runtime_context_id
     
     async def update_ctx_cache(
         self,
@@ -48,5 +56,5 @@ class SessionRuntimeContextService:
         await self._session_runtime_ctx_cache.update_session(
             str(session_id),
             update=update.model_dump(),
-            ttl_seconds = get_settings().GRAPH_REDIS_TTS_MINUTES * 60,
+            ttl_seconds = get_settings().GRAPH_REDIS_TTL_MINUTES * 60,
         )

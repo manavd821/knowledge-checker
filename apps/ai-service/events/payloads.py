@@ -5,7 +5,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from models.enums import ContentType, Difficulty
 
-
 class CandidateTurnCompleted(BaseModel):
     model_config = ConfigDict(
         use_enum_values=True,
@@ -13,22 +12,11 @@ class CandidateTurnCompleted(BaseModel):
 
     session_id: UUID
     transcript: str
-    participant_id: str
     turn_id: UUID
+    participant_id: str
     speaker: str = "candidate"
     content_type: str = "answer"
     user_audio_duration_sec: float | None = None
-
-class MergeCandidateTurn(BaseModel):
-    session_id: UUID
-    participant_id: str
-    
-    turn_id: list[UUID]
-    
-    transcript: str
-    transcript_tokens: int
-    
-    evaluation_turn_id: UUID
 
 class InterviewerTurnCompleted(BaseModel):
     model_config = ConfigDict(
@@ -77,7 +65,8 @@ class InterviewerResponseReady(BaseModel):
 class SessionPausedPayload(BaseModel):
     session_id: UUID
     reason: str
-    
+
+# ----- models ----
 class SessionExecutionState(BaseModel):
     queue: deque[CandidateTurnCompleted] = Field(
         default_factory=deque
@@ -109,3 +98,14 @@ class SessionContextUpdate(BaseModel):
     context_tokens: int
 
     version: int
+    
+class MergeCandidateTurn(BaseModel):
+    session_id: UUID
+    participant_id: str
+    
+    turn_id: list[UUID]
+    
+    transcript: str
+    transcript_tokens: int
+    
+    evaluation_turn_id: UUID

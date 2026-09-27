@@ -1,11 +1,7 @@
-from typing import TYPE_CHECKING
-from events.factory import get_event_bus
+from events.factory import get_event_publisher
 from interview.coordinator import InterviewCoordinator
-from livekit_worker.interview_agent_registry import InterviewAgentRegistry
 
 
-def get_interview_coordinator(
-    agent_registry: InterviewAgentRegistry,
-):
-    bus = get_event_bus(agent_registry)
+def get_interview_coordinator():
+    bus = get_event_publisher()
     return InterviewCoordinator(bus)

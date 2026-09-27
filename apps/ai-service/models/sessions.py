@@ -13,7 +13,7 @@ from models.enums import (
     Domain,
     AI_STRICTNESS,
 )
-from models.session_runtime_context import SessionRuntimeContext
+from models.session_runtime_context import SessionRuntimeContextBase
 class SessionCreate(BaseModel):
     created_by: str
 
@@ -85,7 +85,7 @@ class SessionContext(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
     session: SelectSession
-    runtime: SessionRuntimeContext
+    runtime: SessionRuntimeContextBase
 
 class SessionRuntimeContextUpdate(BaseModel):
     fundamental_phase: bool

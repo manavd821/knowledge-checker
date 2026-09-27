@@ -1,7 +1,6 @@
 import asyncio
 from uuid import UUID
 from pydantic import BaseModel
-from events.bus import EventBus
 from events.enums import HandlerPolicy, LiveSessionEvent
 from events.handlers.base import IEventHandler
 from graph.graph_selector import GraphSelector
@@ -215,7 +214,7 @@ class SessionProcessor(IEventHandler):
 
             version = result.runtime_version,        
         )   
-        await self._session_ctx_store.update_session_context(
+        await self._session_ctx_store.update_session_context_cache(
             session_id=session_id,
             update=context_update,
         )

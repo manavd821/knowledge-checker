@@ -1,16 +1,16 @@
 import uuid
 
-from events.bus import EventBus
 from events.enums import LiveSessionEvent
+from events.event_publisher import EventPublisher
 from events.payloads import CandidateTurnCompleted, InterviewerTurnCompleted
 from interview.models import UserTurnCompletedPayload
 
 class InterviewCoordinator:
     def __init__(
         self,
-        bus: EventBus,
+        publisher: EventPublisher,
     ) -> None:
-        self._bus = bus
+        self._publisher = publisher
     
     async def on_user_turn_complete(
         self,
@@ -19,7 +19,7 @@ class InterviewCoordinator:
         turn_id = uuid.uuid4()
         fields_to_pass = {"session_id", "transcript", "participant_id", }
         if data.role == "candidate":
-            await self._bus.publish(
+            await self._publisher.publish(
                 LiveSessionEvent.CANDIDATE_TURN_COMPLETED,
                 CandidateTurnCompleted(
                     turn_id=turn_id,   
@@ -27,10 +27,10 @@ class InterviewCoordinator:
                 )
             )
         elif data.role == "interviewer":
-            await self._bus.publish(
+            await self._publisher.publish(
                 LiveSessionEvent.INTERVIEWER_TURN_COMPLETED,
                 InterviewerTurnCompleted(
-                    turn_id=str(turn_id),
+                    turn_id=turn_id,
                     **data.model_dump(include=fields_to_pass)
                 )
             )

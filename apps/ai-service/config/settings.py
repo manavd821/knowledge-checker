@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     UPSTASH_REDIS_URL: str
     
     REDIS_URL : str
-    GRAPH_REDIS_TTS_MINUTES: int
+    GRAPH_REDIS_TTL_MINUTES: int
     
     DEEPGRAM_API_KEY : str
     LIVEKIT_URL : str

@@ -28,7 +28,7 @@ class SessionCache:
     ) -> None:
         await self._redis.set(
             self._key(session_id),
-            data.model_dump(),
+            data.model_dump(mode="json"),
             ttl_seconds,
         )
 

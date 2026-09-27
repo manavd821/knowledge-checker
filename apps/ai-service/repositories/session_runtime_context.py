@@ -23,11 +23,11 @@ class SessionRuntimeContextRepository:
                 return
             return SelectSessionRuntimeContext.model_validate(data)
     
-    async def create(self, data: InsertSessionRuntimeContext) -> str :
+    async def create(self, data: InsertSessionRuntimeContext) -> SelectSessionRuntimeContext :
         async with node_db_session() as session:
             runtime = SessionRuntimeContext(
                 **data.model_dump()
             )
             session.add(runtime)
-            
-            return str(runtime.session_runtime_context_id)
+            await session.flush()
+            return SelectSessionRuntimeContext.model_validate(runtime)

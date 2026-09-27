@@ -29,6 +29,7 @@ class ConversationEventPublisher(IEventHandler):
             #     StreamNames.CONVERSATION_EVENTS,
             #     payload.model_dump(mode="json"),
             # )
+            logger.info("Published conversation event to Redis stream", payload=payload.model_dump(mode="json"))
             return
             
         

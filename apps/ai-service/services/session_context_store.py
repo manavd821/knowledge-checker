@@ -7,7 +7,7 @@ from events.payloads import SessionContextUpdate
 from exceptions.CacheMissError import CacheMissError
 from exceptions.NotFoundError import NotFoundError
 from models.enums import Difficulty
-from models.session_runtime_context import InsertSessionRuntimeContext, SelectSessionRuntimeContext, SessionRuntimeContext
+from models.session_runtime_context import InsertSessionRuntimeContext, SelectSessionRuntimeContext, SessionRuntimeContextBase
 from models.sessions import SessionContext
 from repositories.sessions import SessionRepository
 from services.session_runtime_context import SessionRuntimeContextService
@@ -62,36 +62,26 @@ class SessionContextStore:
             session_runtime_ctx = self._create_initial_runtime_ctx(session_id)
             await self._session_runtime_ctx_service.create_ctx(session_runtime_ctx)
         
-        runtime = SessionRuntimeContext.model_validate(session_runtime_ctx)
+        runtime = SessionRuntimeContextBase.model_validate(session_runtime_ctx)
         session_ctx = SessionContext(
             session=session,
             runtime=runtime,
         )
+        settings = get_settings()
+        # store it in cache
+        await self._processor_session_ctx_cache.set_session(
+            session_id=str(session_id),
+            data=session_ctx,
+            ttl_seconds=settings.GRAPH_REDIS_TTL_MINUTES * 60,
+        )
         return session_ctx
     
-    async def update_session_context(
+    async def update_session_context_cache(
         self,
         session_id: UUID,
         update: SessionContextUpdate,
     ):
-        settings = get_settings()
-        current = await self._processor_session_ctx_cache.get(
-            str(session_id)
+        await self._processor_session_ctx_cache.update_runtime(
+            str(session_id),
+            update,
         )
-        if current is None:
-            raise CacheMissError(
-                f"Session context not found: {session_id}"
-            )
-        current = current.model_dump()
-        
-        runtime = current["runtime"].update(
-            update.model_dump()
-        )
-        
-        await self._processor_session_ctx_cache.update(
-            session_id=str(session_id),
-            update=runtime,
-            ttl_seconds=settings.GRAPH_REDIS_TTS_MINUTES * 60,
-        )
-        
-        

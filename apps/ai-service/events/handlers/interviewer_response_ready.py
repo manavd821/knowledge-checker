@@ -1,5 +1,3 @@
-from typing import cast
-
 from pydantic import BaseModel
 
 from events.enums import HandlerPolicy, LiveSessionEvent
@@ -10,12 +8,6 @@ from livekit_worker.interview_agent_registry import InterviewAgentRegistry
 
 logger = get_logger(__name__)
 class InterviewerResponseReadyHandler(IEventHandler):
-    
-    def __init__(
-        self,
-        agent_registry: InterviewAgentRegistry
-    ) -> None:
-        self._agent_registry = agent_registry
         
     @property 
     def policy(self) -> HandlerPolicy:
@@ -29,5 +21,5 @@ class InterviewerResponseReadyHandler(IEventHandler):
         if not isinstance(payload, InterviewerResponseReady):
             raise ValueError(f"Invalid payload type: {type(payload)}")
         
-        agent = self._agent_registry.get(payload.session_id)
+        agent = InterviewAgentRegistry.get(payload.session_id)
         await agent.handle_interviewer_response(payload.response)

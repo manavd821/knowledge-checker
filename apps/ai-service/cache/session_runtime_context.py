@@ -1,5 +1,6 @@
 from typing import Any
-
+import json
+from uuid import UUID
 from lib.redis.cache.base import IRedisDB
 from models.session_runtime_context import SelectSessionRuntimeContext
 
@@ -16,15 +17,12 @@ class SessionRuntimeContextCache:
         return f"{self._KEY_PREFIX}:{session_id}"
 
     async def get(self, session_id: str) -> SelectSessionRuntimeContext | None:
-        data =  await self._redis.get(
+        data = await self._redis.get(
                     self._key(session_id)
                 )
         if not data:
             return
-        return SelectSessionRuntimeContext.model_validate({
-            "session_runtime_context_id" : str(data.session_runtime_context_id)
-            **data,
-        })
+        return SelectSessionRuntimeContext.model_validate(data)
     
     async def set(
             self,
@@ -34,7 +32,7 @@ class SessionRuntimeContextCache:
         ) -> None:
             await self._redis.set(
                 self._key(session_id),
-                data.model_dump(),
+                data.model_dump(mode="json"),
                 ttl_seconds,
             )
         

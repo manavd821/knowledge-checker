@@ -4,7 +4,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 from models.enums import Difficulty
 
-class SessionRuntimeContext(BaseModel):
+class SessionRuntimeContextBase(BaseModel):
     
     turn_number: int
     questions_asked: int
@@ -21,13 +21,13 @@ class SessionRuntimeContext(BaseModel):
 
     version: int
 
-class SelectSessionRuntimeContext(SessionRuntimeContext):
+class SelectSessionRuntimeContext(SessionRuntimeContextBase):
     model_config = ConfigDict(from_attributes=True)
 
-    session_runtime_context_id: str
-    # session_id: UUID
+    session_runtime_context_id: UUID
+    session_id: UUID
     created_at: datetime
     updated_at: datetime
     
-class InsertSessionRuntimeContext(SessionRuntimeContext):
+class InsertSessionRuntimeContext(SessionRuntimeContextBase):
     session_id: UUID

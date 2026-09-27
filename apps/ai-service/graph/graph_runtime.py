@@ -2,11 +2,12 @@ from execution_profile.enums import ExecutionProfile
 from execution_profile.provider.graph import GraphProvider
 from graph.enums import GraphType
 from graph.graph_registry import GraphRegistry
+from lib.logging.logging import get_logger
 from models.graph_result import GraphResult
 from models.graph_state import InterviewGraphState
 from langgraph.graph.state import CompiledStateGraph
 
-
+logger = get_logger(__name__)
 class GraphRuntime:
     def __init__(
         self,
@@ -36,9 +37,17 @@ class GraphRuntime:
             graph_factory = self._graph_registry.get(graph_type)
             graph = graph_factory.create(profile)
             self._graphs[key] = graph
-            
+        
+        logger.info(
+            "Invokig graph...",
+            transcript = state.user_transcript,
+        )
         response = await graph.ainvoke(
             state
+        )
+        logger.info(
+            "graph execution completed",
+            final_response = state.final_response,
         )
         result = InterviewGraphState.model_validate(response)
         

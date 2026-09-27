@@ -32,7 +32,7 @@ class SessionService:
                 session_id
             )
         # set in cache
-        tts_seconds = get_settings().GRAPH_REDIS_TTS_MINUTES * 60
+        tts_seconds = get_settings().GRAPH_REDIS_TTL_MINUTES * 60
         await self._session_cache.set_session(session_id, session, tts_seconds)
         
         return SelectSession.model_validate(session)

@@ -85,5 +85,5 @@ class EvalutorNode:
             "context" : updated_context,
             "evaluation_score": ev.evaluation_score,
             "evaluation_feedback": ev.evaluation_feedback,
-            "evaluation_rubric": ev.evaluation_rubric,
+            "evaluation_rubric": ev.evaluation_rubric.model_dump(),
         }

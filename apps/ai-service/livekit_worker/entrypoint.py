@@ -10,7 +10,8 @@ from livekit.plugins import (
 )
 from livekit.rtc import RemoteParticipant
 from lib.logging.logging import get_logger
-from livekit_worker.factory import create_interview_agent
+from livekit_worker.agent import InterviewAgent
+# from livekit_worker.factory import create_interview_agent
 from livekit_worker.lifespan import clean_up
 from livekit_worker.models import ParticipantMetadata
 
@@ -46,12 +47,16 @@ async def entrypoint(ctx : JobContext):
             language="en",
         ),
     )
-    agent = create_interview_agent(
-        session_id=UUID(session_id),
-        metadata=metadata,
-        participant_id=participant_id,
-    )
+    # agent = create_interview_agent(
+    #     session_id=UUID(session_id),
+    #     metadata=metadata,
+    #     participant_id=participant_id,
+    # )
     await session.start(
         room=ctx.room,
-        agent=agent,
+        agent=InterviewAgent(
+            session_id=UUID(session_id),
+            metadata=metadata,
+            participant_id=participant_id,
+        ),
     )
