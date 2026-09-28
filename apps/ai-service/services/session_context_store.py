@@ -3,7 +3,7 @@ from uuid import UUID
 from cache.session import SessionCache
 from cache.processor_session_context import ProcessorSessionContextCache
 from config.settings import get_settings
-from events.payloads import SessionContextUpdate
+from events.models import SessionContextUpdate
 from exceptions.CacheMissError import CacheMissError
 from exceptions.NotFoundError import NotFoundError
 from models.enums import Difficulty

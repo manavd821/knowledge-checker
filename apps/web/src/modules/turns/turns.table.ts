@@ -15,6 +15,7 @@ import {
     contentTypeEnum,
     difficultyEnum,
 } from "@/db/enums";
+import { session_participants } from "../session-participants/session-participants.table";
 
 export const turns = pgTable("turns", 
 {
@@ -23,6 +24,8 @@ export const turns = pgTable("turns",
         .references(() => sessions.session_id, {onDelete : "cascade"})
         .notNull(),
     turn_number : integer().notNull(),
+    participant_id: uuid()
+        .references(() => session_participants.participant_id, {onDelete : "cascade"}),
     speaker : speakerEnum().notNull(),
 
     content : text().notNull(),

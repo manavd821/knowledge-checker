@@ -1,12 +1,14 @@
 import { env } from "@/config/env";
 import { AccessToken, TrackSource } from "livekit-server-sdk";
 import { IRealTimeProvisioner } from "@/rtc/provisioning/realtime-provisioner";
+import { Role } from "@/modules";
 
 export class LivekitProvisioner implements IRealTimeProvisioner{
     async generate_token(
         room_id: string, 
         participant_identity: string,
         connection_id: string,
+        role: Role,
     ) : Promise<string>{
         const at = new AccessToken(
             env.LIVEKIT_API_KEY, 
@@ -17,6 +19,7 @@ export class LivekitProvisioner implements IRealTimeProvisioner{
         );
         at.metadata = JSON.stringify({
             connection_id,
+            role,
         });
         at.addGrant({
             roomJoin: true,

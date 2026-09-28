@@ -1,8 +1,7 @@
 "use client";
 import { SessionTimer } from "@/interview-session/interview-session-types";
 import React, { createContext, useEffect, useRef, useState } from "react";
-import { useSessionMeta } from "@/react/live-session/hooks/use-session-meta";
-
+import { useLiveSessionInfo } from "@/react/live-session/hooks/use-live-session-info";
 
 export const SessionTimerContext = createContext<SessionTimer>({
     elapsed_seconds: 0,
@@ -12,10 +11,10 @@ export const SessionTimerContext = createContext<SessionTimer>({
 export const SessionTimerProvider = ({ children } : { 
     children: React.ReactNode,
  }) => {
-    const { session : { 
+    const { 
         completed_duration_sec,
         duration_minutes,
-    } } = useSessionMeta();
+    } = useLiveSessionInfo();
     const started_at = useRef(Date.now());
     const [elapsed_seconds, setelapsed_seconds] = useState(completed_duration_sec);
 

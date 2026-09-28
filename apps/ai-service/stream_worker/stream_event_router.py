@@ -1,7 +1,7 @@
 import asyncio
 from collections import defaultdict
 from pydantic import BaseModel
-from lib.redis.stream.handlers.base import IStreamEventHandler
+from stream_worker.handlers.base import IStreamEventHandler
 from stream_worker.stream_events import StreamEvent
 
 class StreamEventRouter:

@@ -11,20 +11,34 @@ class RedisStreamWorker:
         self,
         stream: IRedisStream,
         router: StreamEventRouter,
-        registry: StreamEventRegistry,
         stream_key: str,
         group: str,
         consumer: str,
     ) -> None:
         self._stream = stream
         self._router = router
-        self._registry = registry
         self._stream_key = stream_key
         self._group = group
         self._consumer = consumer
 
         self._running = True
 
+    async def start(self) -> None:
+        await self._stream.ensure_group(
+            key=self._stream_key,
+            group=self._group,
+        )
+        logger.info(
+            "Starting Redis stream worker",
+            extra={
+                "stream": self._stream_key,
+                "group": self._group,
+                "consumer": self._consumer,
+            },
+        )
+        
+        await self.run()
+        
     async def run(self):
         while self._running:
             
@@ -48,7 +62,7 @@ class RedisStreamWorker:
     ):
         try:
             event = StreamEvent(fields["event"])
-            payload = self._registry.deserialize_payload(
+            payload = StreamEventRegistry.deserialize_payload(
                 event=event,
                 raw_payload=fields["payload"],
             )

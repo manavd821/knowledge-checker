@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from db.db_session import node_db_session
 from models.orm.sessions import Session
@@ -12,7 +12,7 @@ class TurnRepository:
         
     async def create_turn(
         self,
-        session_id: str,
+        session_id: UUID,
         turn: CreateTurn,
     ) -> SelectTurn:
 
@@ -37,6 +37,7 @@ class TurnRepository:
                 else 1
             )
             db_turn = Turn(
+                turn_id=turn.turn_id,
                 session_id=turn.session_id,
                 turn_number=latest_turn_number,
                 speaker=turn.speaker,
@@ -81,3 +82,17 @@ class TurnRepository:
 
             await session.flush()
             return SelectTurn.model_validate(db_turn)
+        
+    async def update_turn(
+        self,
+        turn_id: UUID,
+        data: dict,
+    ):
+        stmt = (
+            update(Turn)
+            .where(Turn.turn_id == turn_id)
+            .values(data)
+        )
+        async with node_db_session() as session:
+            await session.execute(stmt)
+        

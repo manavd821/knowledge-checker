@@ -1,0 +1,1 @@
+ALTER TABLE "session_runtime_context" ADD COLUMN "current_question" text;

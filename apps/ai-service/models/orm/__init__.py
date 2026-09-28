@@ -5,3 +5,5 @@ from models.orm.turns import Turn
 from models.orm.session_contexts import SessionContext
 from models.orm.evaluation_summaries import EvaluationSummary
 from models.orm.session_runtime_contexts import SessionRuntimeContext
+from models.orm.session_participants import SessionParticipant
+from models.orm.session_connections import SessionConnection

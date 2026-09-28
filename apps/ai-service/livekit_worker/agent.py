@@ -19,7 +19,7 @@ class InterviewAgent(Agent):
         self, 
         session_id: UUID,
         metadata: ParticipantMetadata,
-        participant_id: str,
+        participant_id: UUID,
     ):
         super().__init__(instructions="")
         self.session_id = session_id

@@ -8,5 +8,5 @@ from models.enums import Speaker
 class UserTurnCompletedPayload(BaseModel):
     transcript: str
     session_id: UUID
-    participant_id: str
+    participant_id: UUID
     role: Speaker

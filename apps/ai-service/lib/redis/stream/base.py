@@ -31,3 +31,11 @@ class IRedisStream:
         message_id: str,
     ):
         raise NotImplementedError
+    
+    @abstractmethod
+    async def ensure_group(
+        self,
+        key: str,
+        group: str,
+    ):
+        raise NotImplementedError

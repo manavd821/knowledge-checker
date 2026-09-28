@@ -9,7 +9,7 @@ async def main():
     try:
         worker = get_redis_worker(redis_client)
         
-        await worker.run()
+        await worker.start()
         
     except Exception:
         await close_redis_client(redis_client)

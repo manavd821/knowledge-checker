@@ -23,6 +23,7 @@ export const POST = withRequestContextAndErrorHandling(async (
         participant_id,
         connection_id,
         completed_duration_sec,
+        role
     } = await db.transaction(async (tx) => {
         const {
             session_participants: session_participants_service,
@@ -36,6 +37,7 @@ export const POST = withRequestContextAndErrorHandling(async (
         const { 
             participant_id,
             completed_duration_sec,
+            role,
         } = participant;
         const connection_id = await session_connections_service.create_session_connection({
             participant_id,
@@ -46,11 +48,12 @@ export const POST = withRequestContextAndErrorHandling(async (
             participant_id,
             connection_id,
             completed_duration_sec,
+            role,
         }
     });
     const realtime_provisioner_service = get_realtime_provisioner_service();
     const connection_data = await realtime_provisioner_service
-                .create_connection(session_id,participant_id, connection_id);
+                .create_connection(session_id,participant_id, connection_id, role);
     
     const r = CreateConnectionSchema.safeParse({
         ...session_data,

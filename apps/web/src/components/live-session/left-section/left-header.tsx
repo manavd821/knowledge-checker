@@ -1,13 +1,15 @@
 import { SidebarHeader, SidebarTrigger } from "@/components/ui/sidebar";
 import { SessionMetaCard } from "@/components/live-session/left-section/session-meta-card";
 import { ProgressBar } from "@/components/live-session/left-section/progress-bar";
-import { useSessionMetaContext } from "@/react/live-session/context/session-meta-provider";
-import { UserAvtar } from "./user-avtar";
+import { UserAvtar } from "@/components/live-session/left-section/user-avtar";
 import { DIFFICULTY_META, DOMAIN_META, TOPIC_TYPE_META } from "@/react/session-form/sessions.meta";
+import { useUser } from "@/react/users/hooks/use-user";
+import { useLiveSessionInfo } from "@/react/live-session/hooks/use-live-session-info";
 
 export function LeftHeader(){
 
-    const {user, session} = useSessionMetaContext();
+    const user = useUser();
+    const session = useLiveSessionInfo();
     return (
         <SidebarHeader>
             <div

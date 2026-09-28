@@ -36,6 +36,55 @@
       "when": 1785328624530,
       "tag": "0004_good_mojo",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785827966655,
+      "tag": "0005_worthless_kabuki",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1786367704245,
+      "tag": "0006_cooing_cardiac",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1786369004372,
+      "tag": "0007_yielding_tombstone",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1787913267192,
+      "tag": "0008_deep_bloodstorm",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1788334784403,
+      "tag": "0009_red_pet_avengers",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1789185971607,
+      "tag": "0010_unique_wonder_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790310931172,
+      "tag": "0011_watery_doctor_faustus",
+      "breakpoints": true
     }
   ]
 }

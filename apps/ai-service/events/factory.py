@@ -55,6 +55,10 @@ def get_event_bus():
         LiveSessionEvent.INTERVIEWER_RESPONSE_READY,
         interview_response_ready,
     )
+    bus.subscribe(
+        LiveSessionEvent.RUNTIME_CONTEXT_UPDATED,
+        conversation_event_publisher,
+    )
     
     return bus
 

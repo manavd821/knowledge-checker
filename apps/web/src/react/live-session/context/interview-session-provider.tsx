@@ -8,14 +8,12 @@ import React, {
 } from "react";
 import { useInterviewIntialization } from "@/react/live-session/hooks/use-interview-initialization";
 import { LiveSessionInfo } from "@/modules";
-import { GetUser } from "@/shared/dto/users/get-user.dto";
 
 export type ManagerProvider = {
     manager: InterviewSessionManager,
     session_id: string,
     connection_state: ConnectionState,
     live_session_info: LiveSessionInfo,
-    user: GetUser,
 }
 
 export const ManagerContext = createContext< ManagerProvider | null>(null);
@@ -25,7 +23,6 @@ export const ManagerProvider = ({ session_id, children } : {
     children : React.ReactNode,
 }) => {
     const managerRef = useRef<InterviewSessionManager | null>(null);
-
     if(!managerRef.current){
         managerRef.current = createInterviewSession();
     }
@@ -52,7 +49,6 @@ export const ManagerProvider = ({ session_id, children } : {
     const {
         connection_state,
         live_session_info,
-        user,
     } = data;
     return (
         <ManagerContext value={{
@@ -60,7 +56,6 @@ export const ManagerProvider = ({ session_id, children } : {
             manager: managerRef.current,
             connection_state,
             live_session_info,
-            user,
         }}>
             {children}
         </ManagerContext>

@@ -1,7 +1,7 @@
 from typing import Any
 
 from config.settings import get_settings
-from events.payloads import SessionContextUpdate
+from events.models import SessionContextUpdate
 from lib.redis.cache.base import IRedisDB
 from models.sessions import SessionContext
 from exceptions.CacheMissError import CacheMissError

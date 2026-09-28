@@ -1,3 +1,4 @@
+from redis import ResponseError
 from redis.asyncio import Redis
 
 from lib.redis.stream.base import IRedisStream
@@ -47,3 +48,19 @@ class StreamRedisCloud(IRedisStream):
             group,
             message_id,
         )
+    
+    async def ensure_group(
+            self,
+            key: str,
+            group: str,
+        ):
+            try:
+                await self._client.xgroup_create(
+                    name=key,
+                    groupname=group,
+                    id="0",
+                    mkstream=True,
+                )
+            except ResponseError as exc:
+                if "BUSYGROUP" not in str(exc):
+                    raise

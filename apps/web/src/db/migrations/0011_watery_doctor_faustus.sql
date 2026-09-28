@@ -1,0 +1,1 @@
+ALTER TABLE "turns" DROP CONSTRAINT "turns_turn_number_unique";

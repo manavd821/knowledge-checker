@@ -141,7 +141,7 @@ class CreateTurn(BaseModel):
     model_config = ConfigDict(
         use_enum_values=True,
     )
-
+    turn_id: UUID
     session_id: UUID
     particiapant_id: str | None = None
 

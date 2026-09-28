@@ -1,5 +1,6 @@
 import asyncio
 from uuid import UUID
+import uuid
 from pydantic import BaseModel
 from events.enums import HandlerPolicy, LiveSessionEvent
 from events.handlers.base import IEventHandler
@@ -18,13 +19,14 @@ from events.payloads import (
     CandidateTurnUpdated,
     InterviewerResponseReady, 
     InterviewerTurnCompleted, 
-    MergeCandidateTurn, 
     RuntimeContextUpdated, 
+)
+from events.models import (
+    MergeCandidateTurn, 
     SessionContextUpdate, 
     SessionExecutionState, 
     SessionRuntimeContextUpdate,
 )
-
 logger = get_logger(__name__)
 
 class SessionProcessor(IEventHandler):
@@ -144,8 +146,8 @@ class SessionProcessor(IEventHandler):
     async def publish_graph_result(
         self,
         session_id: UUID,
-        turn_id: UUID,
-        participant_id: str,
+        candidate_turn_id: UUID, 
+        participant_id: UUID,
         result: GraphResult,
     ):
         # candidate turn update
@@ -153,7 +155,7 @@ class SessionProcessor(IEventHandler):
             LiveSessionEvent.CANDIDATE_TURN_UPDATE,
             CandidateTurnUpdated(
                 session_id=session_id,
-                turn_id=turn_id,
+                turn_id=candidate_turn_id,
                 evaluation_score=result.evaluation_score,
                 evaluation_feedback=result.evaluation_feedback,
                 evaluation_rubric=result.evaluation_rubric,
@@ -161,13 +163,14 @@ class SessionProcessor(IEventHandler):
         )
         
         # interviewer turn completed
+        interviewer_turn_id = uuid.uuid4()
         await self._event_publisher.publish(
             LiveSessionEvent.INTERVIEWER_TURN_COMPLETED,
             InterviewerTurnCompleted(
                 session_id = session_id,
                 participant_id = participant_id,
-                turn_id = turn_id,
-                content = result.final_response,
+                turn_id = interviewer_turn_id,
+                content = result.final_response, # type: ignore
                 # tokens_used = result.toke
             )
         )
@@ -239,7 +242,7 @@ class SessionProcessor(IEventHandler):
         turns: list[CandidateTurnCompleted]
         ) -> MergeCandidateTurn:
         transcript = "".join(
-                turn.transcript
+                turn.content
                 for turn in turns
             )
         token_services = TokenService()

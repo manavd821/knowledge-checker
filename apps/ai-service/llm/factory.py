@@ -51,7 +51,7 @@ def register_question_generation_config(resolver: LLMResolver):
             temperature=0.7,
             max_tokens=1000,
             llm_provider=LLMModelProvider.GOOGLE_GENAI,
-            llm_model=LLMModel.GEMINI_2_5_FLASH,
+            llm_model=LLMModel.GEMINI_3_5_FLASH_LITE,
         ),
     )
 
@@ -96,7 +96,7 @@ def register_turn_evaluation_config(resolver: LLMResolver):
             temperature=0.1,
             max_tokens=1200,
             llm_provider=LLMModelProvider.GOOGLE_GENAI,
-            llm_model=LLMModel.GEMINI_2_5_FLASH,
+            llm_model=LLMModel.GEMINI_3_5_FLASH_LITE,
         ),
     )
 
@@ -141,7 +141,7 @@ def register_session_evaluation_config(resolver: LLMResolver):
             temperature=0.1,
             max_tokens=2000,
             llm_provider=LLMModelProvider.GOOGLE_GENAI,
-            llm_model=LLMModel.GEMINI_2_5_FLASH,
+            llm_model=LLMModel.GEMINI_3_5_FLASH_LITE,
         ),
     )
 
@@ -186,7 +186,7 @@ def register_hint_generation_config(resolver: LLMResolver):
             temperature=0.4,
             max_tokens=400,
             llm_provider=LLMModelProvider.GOOGLE_GENAI,
-            llm_model=LLMModel.GEMINI_2_5_FLASH,
+            llm_model=LLMModel.GEMINI_3_5_FLASH_LITE,
         ),
     )
 
@@ -231,7 +231,7 @@ def register_context_summary_config(resolver: LLMResolver):
             temperature=0.2,
             max_tokens=1000,
             llm_provider=LLMModelProvider.GOOGLE_GENAI,
-            llm_model=LLMModel.GEMINI_2_5_FLASH,
+            llm_model=LLMModel.GEMINI_3_5_FLASH_LITE,
         ),
     )
 

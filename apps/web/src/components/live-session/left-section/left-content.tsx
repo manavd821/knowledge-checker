@@ -1,11 +1,14 @@
 "use client";
 import { SidebarContent } from "@/components/ui/sidebar";
-import { useSessionMetaContext } from "@/react/live-session/context/session-meta-provider";
+import { useLiveSessionInfo } from "@/react/live-session/hooks/use-live-session-info";
 import { useSessionTimer } from "@/react/live-session/hooks/use-session-timer";
 import { SESSION_TYPE_META } from "@/react/session-form/sessions.meta";
+import { useUser } from "@/react/users/hooks/use-user";
 
 export function LeftContent(){
-    const {user, session} = useSessionMetaContext();
+
+    const user = useUser();
+    const session = useLiveSessionInfo();
     const {
         elapsed_seconds,
         remaining_seconds

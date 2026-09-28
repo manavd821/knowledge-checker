@@ -4,6 +4,7 @@ export const STATUS = [
     "preparing",
     "ready",
     "active",
+    "pause",
     "completed", 
     "failed",
 ] as const;
@@ -64,8 +65,8 @@ export const FILE_TYPE = [
 ] as const;
 
 export const SPEAKER = [
-    "user",
-    "ai",
+    "candidate",
+    "interviewer",
 ] as const;
 
 export const AI_RESPONSE_TYPE = [

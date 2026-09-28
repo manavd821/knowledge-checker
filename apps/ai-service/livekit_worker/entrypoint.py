@@ -3,6 +3,8 @@ from uuid import UUID
 from livekit.agents import (
     JobContext,
     AgentSession,
+    TurnHandlingOptions,
+    inference
 )
 from livekit.plugins import (
     deepgram,
@@ -11,7 +13,6 @@ from livekit.plugins import (
 from livekit.rtc import RemoteParticipant
 from lib.logging.logging import get_logger
 from livekit_worker.agent import InterviewAgent
-# from livekit_worker.factory import create_interview_agent
 from livekit_worker.lifespan import clean_up
 from livekit_worker.models import ParticipantMetadata
 
@@ -36,7 +37,6 @@ async def entrypoint(ctx : JobContext):
     participant_id = participant.identity
     metadata = ParticipantMetadata.model_validate_json(participant.metadata)
 
-    
     session = AgentSession(
         stt = deepgram.STT(
             model="nova-3",
@@ -46,17 +46,20 @@ async def entrypoint(ctx : JobContext):
             model="sonic-3",
             language="en",
         ),
+        turn_handling=TurnHandlingOptions(
+            turn_detection=inference.TurnDetector(),
+            endpointing={
+                "mode":"dynamic",
+                "min_delay":2,
+                "max_delay": 4
+            }
+        )
     )
-    # agent = create_interview_agent(
-    #     session_id=UUID(session_id),
-    #     metadata=metadata,
-    #     participant_id=participant_id,
-    # )
     await session.start(
         room=ctx.room,
         agent=InterviewAgent(
             session_id=UUID(session_id),
             metadata=metadata,
-            participant_id=participant_id,
+            participant_id=UUID(participant_id),
         ),
     )

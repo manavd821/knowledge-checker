@@ -1,7 +1,7 @@
 import { check_session_id_is_uuid } from "@/lib/utils";
 import { notFound } from "next/navigation";
-import { ClientSessionLayout } from "./client-layout";
 import { ManagerProvider } from "@/react/live-session/context/interview-session-provider";
+import { SessionTimerProvider } from "@/react/live-session/context/session-timer-provider";
 
 export default async function SessionLayout({
   params,
@@ -18,9 +18,9 @@ export default async function SessionLayout({
 
     return (
       <ManagerProvider session_id={session_id}>
-          <ClientSessionLayout session_id={session_id}>
+          <SessionTimerProvider>
               {children}
-          </ClientSessionLayout>
+          </SessionTimerProvider>
       </ManagerProvider>
       )
 }

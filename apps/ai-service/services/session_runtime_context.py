@@ -2,7 +2,8 @@ from uuid import UUID
 
 from cache.session_runtime_context import SessionRuntimeContextCache
 from config.settings import get_settings
-from events.payloads import SessionRuntimeContextUpdate
+from events.models import SessionRuntimeContextUpdate
+from events.payloads import RuntimeContextUpdated
 from models.session_runtime_context import InsertSessionRuntimeContext, SelectSessionRuntimeContext
 from repositories.session_runtime_context import SessionRuntimeContextRepository
 
@@ -57,4 +58,14 @@ class SessionRuntimeContextService:
             str(session_id),
             update=update.model_dump(),
             ttl_seconds = get_settings().GRAPH_REDIS_TTL_MINUTES * 60,
+        )
+    
+    async def update_ctx_persistently(
+        self,
+        session_id: UUID,
+        update: RuntimeContextUpdated,
+    ):
+        await self._session_runtime_ctx_repo.update(
+            session_id=session_id,
+            data=update.model_dump(mode="json")
         )

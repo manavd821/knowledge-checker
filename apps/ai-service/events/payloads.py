@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.enums import ContentType, Difficulty
+from models.enums import ContentType, Difficulty, Speaker
 
 class CandidateTurnCompleted(BaseModel):
     model_config = ConfigDict(
@@ -11,11 +11,13 @@ class CandidateTurnCompleted(BaseModel):
     )
 
     session_id: UUID
-    transcript: str
+    participant_id: UUID
     turn_id: UUID
-    participant_id: str
-    speaker: str = "candidate"
-    content_type: str = "answer"
+    
+    speaker: Speaker = Speaker.CANDIDATE
+    content: str
+    content_type: ContentType = ContentType.ANSWER
+    
     user_audio_duration_sec: float | None = None
 
 class InterviewerTurnCompleted(BaseModel):
@@ -24,11 +26,11 @@ class InterviewerTurnCompleted(BaseModel):
     )
     
     session_id: UUID
-    participant_id: str
+    participant_id: UUID
     turn_id: UUID
 
-    speaker: str = "interviewer"
-    content: str | None = None
+    speaker: Speaker = Speaker.INTERVIEWER
+    content: str
     content_type: ContentType = ContentType.QUESTION
 
     tokens_used: int | None = None
@@ -65,47 +67,3 @@ class InterviewerResponseReady(BaseModel):
 class SessionPausedPayload(BaseModel):
     session_id: UUID
     reason: str
-
-# ----- models ----
-class SessionExecutionState(BaseModel):
-    queue: deque[CandidateTurnCompleted] = Field(
-        default_factory=deque
-    )
-    running: bool = False
-    
-class SessionRuntimeContextUpdate(BaseModel):
-    fundamental_phase: bool
-    current_difficulty: Difficulty
-
-    previous_score: float | None
-    overall_score: float | None
-
-    current_question: str | None
-    questions_asked: int
-
-    version: int
-
-class SessionContextUpdate(BaseModel):
-    fundamental_phase: bool
-    current_difficulty: Difficulty
-    previous_score: float | None
-    overall_score: float | None
-
-    current_question: str | None
-    questions_asked: int
-
-    active_context: str | None
-    context_tokens: int
-
-    version: int
-    
-class MergeCandidateTurn(BaseModel):
-    session_id: UUID
-    participant_id: str
-    
-    turn_id: list[UUID]
-    
-    transcript: str
-    transcript_tokens: int
-    
-    evaluation_turn_id: UUID

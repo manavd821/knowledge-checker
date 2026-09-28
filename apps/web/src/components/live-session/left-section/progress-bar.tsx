@@ -1,10 +1,10 @@
 import { Progress } from "@/components/ui/progress";
-import { useSessionMetaContext } from "@/react/live-session/context/session-meta-provider";
+import { useLiveSessionInfo } from "@/react/live-session/hooks/use-live-session-info";
 import { useSessionTimer } from "@/react/live-session/hooks/use-session-timer";
 
 export function ProgressBar(){
 
-    const { session : {duration_minutes} } = useSessionMetaContext();
+    const  { duration_minutes } = useLiveSessionInfo();
     const { elapsed_seconds } = useSessionTimer();
     const minutes = Math.floor(elapsed_seconds / 60);
     const seconds = elapsed_seconds % 60;

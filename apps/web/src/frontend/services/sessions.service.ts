@@ -1,11 +1,12 @@
 import { ConnectionService } from "@/connection/connection-service";
-import { LiveSessionInfo, LiveSessionInfoSchema, SessionForm } from "@/modules";
+import { LiveSessionInfo } from "@/modules";
 import { SessionCacheService } from "@/frontend/cache/session-cache.service";
 import { ConfigurationError } from "@/exceptions/ConfigurationError";
 import { ConnectionState } from "@/interview-session/interview-session-types";
-import { CreateConnection, CreateConnectionSchema } from "@/shared/dto/sessions/create-connection.dto";
+import { CreateConnection } from "@/shared/dto/sessions/create-connection.dto";
 import { GetSearchUsers } from "@/shared/dto/users/search-user.dto";
 import { ARRAY_FIELD } from "@/shared/enums";
+import { SessionForm } from "@/react/session-form/session-form.types";
 
 export class SessionService{
     constructor(

@@ -4,9 +4,11 @@ from cache.session_runtime_context import SessionRuntimeContextCache
 from lib.redis.factory import get_cache_redis_cloud
 from repositories.session_runtime_context import SessionRuntimeContextRepository
 from repositories.sessions import SessionRepository
+from repositories.turn import TurnRepository
 from services.session_context_store import SessionContextStore
 from services.session_runtime_context import SessionRuntimeContextService
 from services.session_service import SessionService
+from services.turn_service import TurnService
 
 def get_session_service() -> SessionService:
     redis = get_cache_redis_cloud()
@@ -33,4 +35,9 @@ def get_session_context_store() -> SessionContextStore:
         ProcessorSessionContextCache(redis),
         session_service=get_session_service(),
         session_runtime_ctx_service=get_session_runtime_ctx_service()
+    )
+
+def get_turn_service() -> TurnService:
+    return TurnService(
+        TurnRepository()
     )

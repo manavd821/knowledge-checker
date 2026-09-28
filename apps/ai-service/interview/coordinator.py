@@ -16,13 +16,15 @@ class InterviewCoordinator:
         self,
         data: UserTurnCompletedPayload
     ):
-        turn_id = uuid.uuid4()
-        fields_to_pass = {"session_id", "transcript", "participant_id", }
+        candidate_turn_id = uuid.uuid4()
+        interviewer_turn_id = uuid.uuid4()
+        fields_to_pass = {"session_id", "participant_id", }
         if data.role == "candidate":
             await self._publisher.publish(
                 LiveSessionEvent.CANDIDATE_TURN_COMPLETED,
                 CandidateTurnCompleted(
-                    turn_id=turn_id,   
+                    turn_id=candidate_turn_id,  
+                    content=data.transcript,
                     **data.model_dump(include=fields_to_pass),
                 )
             )
@@ -30,7 +32,8 @@ class InterviewCoordinator:
             await self._publisher.publish(
                 LiveSessionEvent.INTERVIEWER_TURN_COMPLETED,
                 InterviewerTurnCompleted(
-                    turn_id=turn_id,
+                    turn_id=interviewer_turn_id,
+                    content=data.transcript,
                     **data.model_dump(include=fields_to_pass)
                 )
             )

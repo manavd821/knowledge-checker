@@ -30,12 +30,12 @@ class ContextSummerizerNode:
         updated_runtime = state.context.runtime.model_copy(
             update={
                 "active_context" : updated_ctx,
-                "active_context_tokens" : ctx_tokens,
+                "context_tokens" : ctx_tokens,
             }
         )
         updated_context = state.context.model_copy(
             update={
-                "context" : updated_runtime
+                "runtime" : updated_runtime
             }
         )
         

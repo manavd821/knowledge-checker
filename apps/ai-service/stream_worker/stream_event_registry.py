@@ -1,42 +1,46 @@
 
 from events.payloads import (
-    CandidateTurnCompleted,
     CandidateTurnUpdated,
-    InterviewerTurnCompleted,
     RuntimeContextUpdated,
 )
 from pydantic import BaseModel
+from stream_worker.payloads import CreateTurnEventPayload
 from stream_worker.stream_events import StreamEvent
 
 class StreamEventRegistry:
 
-    def __init__(self):
-        self._mappings: dict[
+    _mappings : dict[
             StreamEvent,
             type[BaseModel],
         ] = {
-            StreamEvent.CANDIDATE_TURN_COMPLETED:
-                CandidateTurnCompleted,
-
-            StreamEvent.INTERVIEWER_TURN_COMPLETED:
-                InterviewerTurnCompleted,
-                
-            StreamEvent.CANDIDATE_TURN_UPDATE:
+            StreamEvent.CREATE_TURN_EVENT:
+                CreateTurnEventPayload,
+                            
+            StreamEvent.UPDATE_CANDIDATE_TURN_EVENT:
                 CandidateTurnUpdated,
                             
             StreamEvent.RUNTIME_CONTEXT_UPDATED:
                 RuntimeContextUpdated
         }
 
-    def deserialize_payload(
-        self,
+    @classmethod
+    def get_payload_type(
+        cls,
         event: StreamEvent,
-        raw_payload: str,
-    ) -> BaseModel:
-        payload_type = self._mappings.get(event)
+    ) -> type[BaseModel]: 
+        payload_type = cls._mappings.get(event)
         if payload_type is None:
             raise ValueError(
                 f"No payload type registered for event {event.value}"
             )
+        return payload_type
+    
+    @classmethod
+    def deserialize_payload(
+        cls,
+        event: StreamEvent,
+        raw_payload: str,
+    ) -> BaseModel:
+        payload_type = cls.get_payload_type(event)
         
         return payload_type.model_validate_json(raw_payload)
