@@ -12,22 +12,33 @@ export const SessionTimerProvider = ({ children } : {
     children: React.ReactNode,
  }) => {
     const { 
-        completed_duration_sec,
+        actual_duration_sec,
+        active_since,
         duration_minutes,
+        status,
     } = useLiveSessionInfo();
-    const started_at = useRef(Date.now());
-    const [elapsed_seconds, setelapsed_seconds] = useState(completed_duration_sec);
+    
+    const [elapsed_seconds, setelapsed_seconds] = useState<number>(actual_duration_sec ?? 0);
 
     useEffect(() => {
-        const id = setInterval(() => {
-            setelapsed_seconds(
-                completed_duration_sec +
-                Math.floor((Date.now() - started_at.current) / 1000)
+        const accumulatedSeconds = actual_duration_sec ?? 0;
+        if (status !== "active" || !active_since) {
+            setelapsed_seconds(accumulatedSeconds);
+            return;
+        }
+
+        const activeSince = new Date(active_since).getTime();
+        const updateTimer = () => {
+            const currentActiveSeconds = Math.floor(
+                (Date.now() - activeSince) / 1000
             )
-        }, 1000)
+            setelapsed_seconds(accumulatedSeconds + currentActiveSeconds);
+        }
+        updateTimer()
+        const id = setInterval(updateTimer, 1000)
 
         return () => clearInterval(id);
-    },[completed_duration_sec]);
+    },[actual_duration_sec, active_since, status]);
 
     return (
         <SessionTimerContext value={{

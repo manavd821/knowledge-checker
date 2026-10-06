@@ -24,6 +24,7 @@ class GoogleGenAIProvider(ILLMProvider):
 
         llm_model = init_chat_model(
             f"{provider}:{model.value}",
+            transport="rest"
         )
 
         self._models[model] = llm_model

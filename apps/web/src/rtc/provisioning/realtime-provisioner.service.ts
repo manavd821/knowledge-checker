@@ -27,4 +27,11 @@ export class RealTimeProvisionerService{
             ws_url : env.LIVEKIT_URL,
         }
     }
+    async dispatch_agent(session_id: string){
+        const logger = get_logger();
+        await this.provider.dispatch_ai_agent(
+            session_id
+        );
+        logger.info("Dispatched AI agent for session", {session_id});
+    }
 }

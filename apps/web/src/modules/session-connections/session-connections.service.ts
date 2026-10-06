@@ -48,4 +48,14 @@ export class SessionConnectionsService{
                     duration_sec,
                 });
     }
+
+    async has_active_connections(
+        session_id: string,
+    ): Promise<boolean> {
+        const connection =
+            await this.session_connection_repo
+                .get_active_connection_by_session_id(session_id);
+
+        return connection.length > 0;
+    }
 }

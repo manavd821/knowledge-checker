@@ -1,3 +1,5 @@
+import asyncio
+
 from execution_profile.enums import ExecutionProfile
 from execution_profile.provider.graph import GraphProvider
 from graph.enums import GraphType
@@ -17,7 +19,7 @@ class GraphRuntime:
         self._graph_registry = graph_registry
         self._graph_profile_provider = graph_profile_provider
         self._graphs : dict[
-            tuple[GraphType,ExecutionProfile],
+            tuple[GraphType,ExecutionProfile, int],
             CompiledStateGraph[InterviewGraphState]
         ] = {}
         
@@ -30,7 +32,8 @@ class GraphRuntime:
         profile = self._graph_profile_provider.select(
             state.context
         )
-        key = (graph_type,profile)
+        loop_id = id(asyncio.get_running_loop())
+        key = (graph_type,profile, loop_id)
         graph = self._graphs.get(key, None)
         if graph is None:
         

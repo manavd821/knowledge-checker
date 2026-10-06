@@ -2,6 +2,8 @@ import { LiveSessionInfo, LiveSessionInfoSchema } from "@/modules";
 import { CreateConnectionResponse, CreateConnectionResponseSchema } from "@/shared/dto/sessions/create-connection.dto";
 import { CreateSessionResponse, CreateSessionResponseSchema } from "@/shared/dto/sessions/create-session.dto";
 import { GetSessionResponse, GetSessionResponseSchema } from "@/shared/dto/sessions/get-session.dto";
+import { PauseSessionResponse, PauseSessionResponseSchema } from "@/shared/dto/sessions/pause-session.dto";
+import { ResumeSessionResponse, ResumeSessionResponseSchema } from "@/shared/dto/sessions/resume-session.dto";
 import { GetUserResponse, GetUserResponseSchema } from "@/shared/dto/users/get-user.dto";
 import { GetSearchUsersResponse, GetSearchUsersResponseSchema } from "@/shared/dto/users/search-user.dto";
 
@@ -15,6 +17,34 @@ export class ConnectionService{
         );
         const data = await res.json();
         const z_res = CreateConnectionResponseSchema.parse(data);
+        return z_res;
+    }
+    async pause_session(
+        session_id: string
+    ): Promise<PauseSessionResponse> {
+        const res = await fetch(
+            `/api/v1/sessions/${session_id}/pause`,
+            {
+                method: "POST",
+            }
+        );
+
+        const data = await res.json();
+        const z_res = PauseSessionResponseSchema.parse(data);
+        return z_res;
+    }
+    async resume_session(
+        session_id: string
+    ): Promise<ResumeSessionResponse> {
+        const res = await fetch(
+            `/api/v1/sessions/${session_id}/resume`,
+            {
+                method: "POST",
+            }
+        );
+
+        const data = await res.json();
+        const z_res = ResumeSessionResponseSchema.parse(data);
         return z_res;
     }
 

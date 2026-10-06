@@ -18,7 +18,7 @@ class ROLE(str, Enum):
     CANDIDATE = "candidate"
     INTERVIEWER = "interviewer"
     OBSERVER = "observer"
-
+    AI = "ai"
 
 class TopicType(str, Enum):
     MOCK_INTERVIEW = "mock_interview"

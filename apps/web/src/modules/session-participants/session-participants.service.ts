@@ -15,20 +15,33 @@ export class SessionParticipantsService{
         const [ id ] =  await this.session_participants_repo.create([data]);
         return id;
     }
+    async get_participant_by_user_and_session(
+        user_id: string,
+        session_id: string,
+    ){
+        const participant =
+            await this.session_participants_repo
+                .get_by_ids(user_id, session_id);
+
+        if (!participant) {
+            throw new ForbiddenError(
+                "User is not a participant of this session",
+                session_id,
+            );
+        }
+
+        return participant;
+
+    }
     async mark_participant_joined(
         user_id: string,
         session_id: string,
     ) : Promise<MarkParticipantJoined>{
         // Get Session Participant
-        const participant = await this.session_participants_repo
-                    .get_by_ids(user_id, session_id);
-        // Reject if participant not found
-        if(!participant){
-            throw new ForbiddenError(
-                "User is not a participant of this session",
-                session_id,
-            )
-        }
+        const participant = await this.get_participant_by_user_and_session(
+            user_id,
+            session_id
+        );
         
         const now = new Date();
         // Set first_joined_at (once)

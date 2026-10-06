@@ -1,0 +1,1 @@
+ALTER TABLE "sessions" ADD COLUMN "active_since" timestamp with time zone;

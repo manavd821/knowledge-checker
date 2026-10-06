@@ -243,10 +243,13 @@ export const LiveSessionInfoSchema =
         ai_hints_enabled: true,
         camera_required : true,
     }).extend({
+        actual_duration_sec : z.number().nullable(),
         completed_duration_sec: z.number().gte(0).default(0),
         scheduled_at: z.iso.datetime().optional(),
         session_id: z.string(),
         status : z.enum(STATUS),
+        active_since: z.iso.datetime().optional().nullable(),
         started_at : z.iso.datetime().optional(),
         ended_at : z.iso.datetime().optional(),
+        joined_at: z.iso.datetime().optional(),
     });

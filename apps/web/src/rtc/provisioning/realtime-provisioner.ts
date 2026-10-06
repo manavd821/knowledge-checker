@@ -7,4 +7,6 @@ export interface IRealTimeProvisioner{
         connection_id: string,
         role: Role
     ): Promise<string>;
+
+    dispatch_ai_agent(session_id: string) : Promise<void>;
 }

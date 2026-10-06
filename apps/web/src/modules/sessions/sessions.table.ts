@@ -60,6 +60,9 @@ export const sessions = pgTable("sessions",
     ended_at : timestamp({
         withTimezone : true
     }),
+    active_since: timestamp({
+        withTimezone: true 
+    }),
     actual_duration_sec : integer(),
 
     overall_score : real(),

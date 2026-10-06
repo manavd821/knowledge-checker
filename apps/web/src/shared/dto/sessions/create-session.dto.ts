@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ApiErrorSchema, createSuccessResponseSchema } from "../api-response.dto";
+import { ApiErrorSchema, createSuccessResponseSchema } from "@/shared/dto/api-response.dto";
 import { STATUS } from "@/db/enums";
 
 export const CreateSessionSchema = z.object({

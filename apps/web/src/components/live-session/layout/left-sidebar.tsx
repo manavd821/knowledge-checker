@@ -1,9 +1,6 @@
 "use client";
 import { 
     Sidebar,
-    SidebarContent,
-    SidebarHeader,
-    SidebarTrigger,
     useSidebar, 
 } from "@/components/ui/sidebar";
 import { CollapsedSidebar } from "@/components/live-session//layout/collapsed-sidebar";

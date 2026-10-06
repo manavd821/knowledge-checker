@@ -1,8 +1,9 @@
 import { ObservableStore } from "@/store/observable-store";
 import { MessageType } from "@/store/types";
 
-export interface IMessageHander<T = unknown>{
+export interface IMessageHandler<
+    TPayload = unknown,
+>{
     readonly type: MessageType;
-    readonly store : ObservableStore
-    handle(payload: T): void;
+    handle(payload: TPayload): void;
 }

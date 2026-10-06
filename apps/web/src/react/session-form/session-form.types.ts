@@ -8,6 +8,7 @@ import {
     SessionFormStep3Schema,
 } from "@/modules";
 import { z } from "zod";
+import { STATUS } from "@/db/enums";
 
 
 export type SessionForm = z.infer<typeof SessionFormSchema>;
@@ -41,6 +42,7 @@ export type CustomInstructionField = ControllerRenderProps<SessionForm, "custom_
 export type SessionDocumentsField = ControllerRenderProps<SessionForm, "session_documents">;
 
 export type FormFieldRole = z.infer<typeof FormFieldRoleSchema>;
+export type Status = typeof STATUS[number];
 
 export interface FormFieldProps<T>{
     value : T;

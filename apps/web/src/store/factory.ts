@@ -1,6 +1,6 @@
-import { ParticipantStore } from "./participant-store";
-import { TranscriptStore } from "./transcript-store";
+import { ParticipantStore } from "@/store/participant-store";
+import { TranscriptStore } from "@/store/transcript-store";
 
-export const get_transcript_store = () => new TranscriptStore();
+export const transcript_store = new TranscriptStore();
 
-export const get_participant_store = () => new ParticipantStore();
+export const participant_store = new ParticipantStore();

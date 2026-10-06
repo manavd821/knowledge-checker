@@ -7,6 +7,8 @@ export interface ParticipantVM{
     cameraEnabled: boolean;
     micEnabled: boolean;
     speaking: boolean;
+    videoTrack?: MediaStreamTrack;
+    audioTrack?: MediaStreamTrack;
 }
 export interface LocalParticipantVM extends ParticipantVM {
     selectedMicId: string;

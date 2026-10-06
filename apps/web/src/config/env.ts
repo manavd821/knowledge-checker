@@ -18,6 +18,7 @@ const envSchema = z.object({
     LIVEKIT_URL: z.url().nonempty(),
     LIVEKIT_API_KEY: z.string().nonempty(),
     LIVEKIT_API_SECRET: z.string().nonempty(),
+    LIVEKIT_AGENT_NAME: z.string().nonempty(),
 
     LOG_LEVEL : z.string().min(1).nonempty(),
 

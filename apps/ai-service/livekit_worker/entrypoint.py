@@ -14,6 +14,7 @@ from livekit.rtc import RemoteParticipant
 from lib.logging.logging import get_logger
 from livekit_worker.agent import InterviewAgent
 from livekit_worker.lifespan import clean_up
+from livekit_worker.message_publisher import RealtimeMessagePublisher
 from livekit_worker.models import ParticipantMetadata
 
 
@@ -55,11 +56,13 @@ async def entrypoint(ctx : JobContext):
             }
         )
     )
+    message_publisher = RealtimeMessagePublisher(ctx.room)
     await session.start(
         room=ctx.room,
         agent=InterviewAgent(
             session_id=UUID(session_id),
             metadata=metadata,
             participant_id=UUID(participant_id),
+            message_publisher=message_publisher,
         ),
     )

@@ -23,13 +23,17 @@ export const POST = withRequestContextAndErrorHandling(async (
         participant_id,
         connection_id,
         completed_duration_sec,
-        role
+        role,
+        joined_at,
+        become_active,
     } = await db.transaction(async (tx) => {
         const {
+            sessions: session_service,
             session_participants: session_participants_service,
             session_connections: session_connections_service,
         } = createServices(tx);
 
+        
         const {
             participant,
             now,
@@ -42,19 +46,25 @@ export const POST = withRequestContextAndErrorHandling(async (
         const connection_id = await session_connections_service.create_session_connection({
             participant_id,
             joined_at: now,
-        })
-        session_service.mark_session_active_and_started_at(session_id, session_data);
+        });
+        const become_active = await session_service.mark_session_active_and_started_at(session_id, session_data);
         return {
             participant_id,
             connection_id,
             completed_duration_sec,
             role,
+            joined_at: now,
+            become_active,
         }
     });
     const realtime_provisioner_service = get_realtime_provisioner_service();
     const connection_data = await realtime_provisioner_service
                 .create_connection(session_id,participant_id, connection_id, role);
-    
+    logger.info("become active:", {become_active})
+    if(become_active){
+        await realtime_provisioner_service.dispatch_agent(session_id);
+    }
+
     const r = CreateConnectionSchema.safeParse({
         ...session_data,
         ...connection_data,
@@ -62,9 +72,12 @@ export const POST = withRequestContextAndErrorHandling(async (
         scheduled_at : session_data.scheduled_at.toISOString(),
         started_at: session_data.started_at?.toISOString(),
         ended_at: session_data.ended_at?.toISOString(),
+        active_since: session_data.active_since?.toISOString(),
+        joined_at: joined_at.toISOString(),
         participant_id,
         connection_id,
         status : "active",
+
     });
     if(!r.success){
         logger.error("Error in parsing", {issues: r.error.issues});

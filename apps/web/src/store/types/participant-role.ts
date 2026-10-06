@@ -1,4 +1,6 @@
 export type ParticipantRole = 
     | "candidate"
     | "interviewer"
-    | "ai";
+    | "ai"
+    | "observer"
+    ;

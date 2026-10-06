@@ -2,7 +2,8 @@ import { DB } from "@/db/types";
 import { DatabaseBoundary } from "@/modules/database-boundary";
 import { CreateSessionConnection, SelectSessionConnection } from "@/modules/session-connections/session-connections.types";
 import { session_connections } from "@/modules/session-connections/session-connections.table";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
+import { session_participants } from "@/modules/session-participants/session-participants.table";
 
 
 export class SessionConnectionsRepository{
@@ -46,4 +47,33 @@ export class SessionConnectionsRepository{
                     session_connections.connection_id, connection_id
                 ));
     }
+
+    @DatabaseBoundary("")
+    async get_active_connection_by_session_id(
+        session_id: string,
+    ){
+        return (
+            await this.db
+            .select({
+                connection_id: session_connections.connection_id
+            })
+            .from(session_connections)
+            .innerJoin(
+                session_participants,
+                eq(
+                    session_connections.participant_id,
+                    session_participants.participant_id,
+                )
+            )
+            .where(
+                and(
+                    eq(session_participants.session_id, session_id),
+                    isNull(session_connections.left_at)
+                )
+            )
+            .limit(1)
+        );
+                    
+    }
+
 }

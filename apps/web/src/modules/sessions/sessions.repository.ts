@@ -38,13 +38,24 @@ export class SessionRepository{
             .where(eq(sessions.session_id, session_id));
     }
     @DatabaseBoundary("update session started at")
-    async mark_session_started_at(session_id: string){
-        const now = new Date();
+    async mark_session_started_at(session_id: string, now?: Date){
+        // const now = new Date();
         
         await this.database
         .update(sessions)
-        .set({started_at : now})
+        .set({started_at : now ?? new Date()})
         .where(eq(sessions.session_id, session_id));
+        
         return now;
+    }
+    @DatabaseBoundary("update session")
+    async update(
+        session_id: string,
+        update : Partial<SelectSession>,
+    ){
+        await this.database
+        .update(sessions)
+        .set(update)
+        .where(eq(sessions.session_id, session_id));
     }
 }

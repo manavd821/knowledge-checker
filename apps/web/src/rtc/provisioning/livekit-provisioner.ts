@@ -1,9 +1,21 @@
 import { env } from "@/config/env";
-import { AccessToken, TrackSource } from "livekit-server-sdk";
+import { AccessToken, LiveKitAPI, TrackSource } from "livekit-server-sdk";
 import { IRealTimeProvisioner } from "@/rtc/provisioning/realtime-provisioner";
 import { Role } from "@/modules";
 
 export class LivekitProvisioner implements IRealTimeProvisioner{
+
+    private readonly livekit_api: LiveKitAPI;
+
+    constructor(){
+        this.livekit_api = new LiveKitAPI({
+            host: env.LIVEKIT_URL,
+            apiKey: env.LIVEKIT_API_KEY,
+            secret: env.LIVEKIT_API_SECRET,
+        });
+
+    }
+
     async generate_token(
         room_id: string, 
         participant_identity: string,
@@ -36,5 +48,17 @@ export class LivekitProvisioner implements IRealTimeProvisioner{
 
         const token = await at.toJwt();
         return token;
+    }
+
+    async dispatch_ai_agent(session_id: string){
+        await this.livekit_api.agentDispatch.createDispatch(
+        session_id,
+        env.LIVEKIT_AGENT_NAME,
+        {
+            metadata: JSON.stringify({
+                session_id,
+            }),
+        },
+    );
     }
 }

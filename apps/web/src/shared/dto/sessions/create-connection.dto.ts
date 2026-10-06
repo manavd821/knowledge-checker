@@ -10,7 +10,7 @@ export const CreateConnectionSchema = LiveSessionInfoSchema.extend({
     status: z.enum(STATUS),
     participant_id: z.string(),
     connection_id: z.string(),
-}) ;
+});
 export type CreateConnection = z.infer<typeof CreateConnectionSchema>;
 
 export const CreateConnectionSuccessSchema = 

@@ -7,6 +7,8 @@ import { CreateConnection } from "@/shared/dto/sessions/create-connection.dto";
 import { GetSearchUsers } from "@/shared/dto/users/search-user.dto";
 import { ARRAY_FIELD } from "@/shared/enums";
 import { SessionForm } from "@/react/session-form/session-form.types";
+import { PauseSession } from "@/shared/dto/sessions/pause-session.dto";
+import { ResumeSession } from "@/shared/dto/sessions/resume-session.dto";
 
 export class SessionService{
     constructor(
@@ -16,6 +18,7 @@ export class SessionService{
 
     async get_live_session_info(session_id: string) : Promise<LiveSessionInfo | null>{
         let data = this.session_cache.get_live_session_info(session_id);
+        
         if(!data){
             // cache miss
             const res = await this.connection_service.get_session(session_id);
@@ -82,22 +85,33 @@ export class SessionService{
             session_id ,
             status,
         } = res.data;
-        // const live_session_info = LiveSessionInfoSchema.safeParse({
-        //     session_id,
-        //     status,
-        //     ...data,
-        // })
-        // if(!live_session_info.success){
-        //     console.log({issues : live_session_info.error.issues})
-        //     throw new ConfigurationError(
-        //         "Failed to parse live session info from server response",
-        //         {issues : live_session_info.error.issues},
-        //     )
-        // }
-        // this.session_cache.set_live_session_info(session_id, live_session_info.data)
         return session_id;
     }
 
+    async pause_session(session_id: string): Promise<PauseSession> {
+        const res = await this.connection_service.pause_session(session_id);
+        if(!res.success){
+            throw new Error(res.message, {
+                cause: {
+                    ...res,
+                },
+            });
+        }
+        return res.data;
+    }
+    async resume_session(session_id: string): Promise<ResumeSession>{
+        const res = await this.connection_service.resume_session(session_id);
+
+        if (!res.success) {
+            throw new Error(res.message, {
+                cause: {
+                    ...res,
+                },
+            });
+        }
+
+        return res.data;
+    }
     async get_connection_info(session_id: string) : Promise<CreateConnection>{
         // no caching of connection info
         const res = await this.connection_service.create_connection(session_id);
@@ -133,11 +147,11 @@ export class SessionService{
         this.session_cache.set_connection_state(session_id, data);
     }
     
-    leave_session(connection_id: string){
+    async leave_session(connection_id: string){
         // navigator.sendBeacon(
         //     `/api/v1/session-connections/${connection_id}/leave`
         // );
-        this.connection_service.leave_session(connection_id);
+        await this.connection_service.leave_session(connection_id);
     }
 
     async search_user(text: string): Promise<GetSearchUsers>{
@@ -152,5 +166,17 @@ export class SessionService{
             )
         }
         return res.data;
+    }
+    update_live_session_cache(
+        session_id : string,
+        update: Partial<LiveSessionInfo>
+    ){
+        let live_session_info = this.session_cache.get_live_session_info(session_id);
+        if(live_session_info){
+            this.set_live_session_info(session_id, {
+                ...live_session_info,
+                ...update,
+            });
+        }
     }
 }

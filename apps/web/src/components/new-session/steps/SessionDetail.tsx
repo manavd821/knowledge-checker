@@ -35,13 +35,7 @@ export function SessionDetail(){
             )}
             />
         
-            {/* <Controller
-            name={"creator_role"}
-            control={control}
-            render={() => (
-                <RoleField/>
-            )}
-            /> */}
+            
             <Controller
             control={control}
             name="participants"

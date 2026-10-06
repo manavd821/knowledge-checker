@@ -14,7 +14,6 @@ import { ROLE, STATUS } from "@/db/enums";
 export type CreateSessionRoute = z.infer<typeof CreateSessionRouteShema>;
 export type CreateSession = z.infer<typeof CreateSessionSchema>;
 
-export type CreatorRole = CreateSessionRoute["creator_role"];
 export type SessionType = CreateSession["session_type"];
 export type TopicType = CreateSession["topic_type"];
 export type RoleLevel = CreateSession["role_level"];

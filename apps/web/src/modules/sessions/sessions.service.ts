@@ -12,6 +12,7 @@ import { ForbiddenError } from "@/exceptions/ForbiddenError";
 import { ConflictError } from "@/exceptions/ConflictError";
 import { SessionParticipantsService } from "@/modules/session-participants/session-participants.service";
 import { ARRAY_FIELD } from "@/shared/enums";
+import { ConfigurationError } from "@/exceptions/ConfigurationError";
 
 const logger = get_logger()
 export class SessionService{
@@ -114,6 +115,70 @@ export class SessionService{
         await this.update_session_status(session_id, "ready");
         return session_id;
     }
+    async pauseSession(
+        session_id: string,
+        user_id: string,
+    ){
+        const {
+            session,
+            participant,
+        } = await this.assert_can_control_session(
+            session_id,
+            user_id
+        );
+        
+        if (session.status !== "active") {
+            throw new ForbiddenError(
+                "Session is not active",
+                session_id,
+            );
+        }
+        if (!session.active_since) {
+            throw new ConfigurationError(
+                "Active session does not have active_since",
+                {
+                    session_id,
+                },
+            );
+        }
+
+        const now = new Date();
+        const elapsedSeconds = Math.floor(
+            (now.getTime() - session.active_since!.getTime()) / 1000
+        );
+        await this.session_repo.update(session_id, {
+            status: "pause",
+            actual_duration_sec:
+                (session.actual_duration_sec ?? 0) + elapsedSeconds,
+            active_since: null,
+        });
+    }
+    async resumeSession(
+        session_id: string,
+        user_id: string,
+    ){
+        const {
+            session,
+            participant,
+        } = await this.assert_can_control_session(
+            session_id,
+            user_id
+        );
+
+        if (session.status !== "pause") {
+            throw new ForbiddenError(
+                "Session is not paused",
+                session_id,
+            );
+        }
+
+        const now = new Date();
+
+        await this.session_repo.update(session_id, {
+            status: "active",
+            active_since: now,
+        });
+    }
     async update_session_status(session_id : string, status: Status) : Promise<void>{
         await this.session_repo.update_status(session_id, status);
     }
@@ -126,7 +191,11 @@ export class SessionService{
             throw new NotFoundError("Session not found",session_id, "session");
         }
         
-        if(dbData.status !== "ready" && dbData.status !== "active"){
+        if(
+            dbData.status !== "ready" 
+            && dbData.status !== "active"
+            && dbData.status !== "pause"
+        ){
             // throw new Error(`InvalidSessionStateError: Cannot join a session with status '${dbData.status}'`);
             throw new ConflictError(
                 `Cannot join a session with status '${dbData.status}'`, 
@@ -137,29 +206,119 @@ export class SessionService{
         logger.info("Session validated successfully", {session_id,});
         return dbData;
     }
-    async mark_session_active_and_started_at(session_id : string, session_data? : SelectSession){
+    async mark_session_active_and_started_at(
+        session_id : string, 
+        session_data? : SelectSession
+    ) : Promise<boolean>{
+        let become_active = false;
         if(!session_data){
             session_data = await this.session_repo.get_by_session_id(session_id);
             if(!session_data) throw new NotFoundError("Session not found",session_id, "session");
             logger.info("Session data fetched from db", {session_id, session_data});
         }
+        const now = new Date();
         if(session_data.status != "active"){
             await this.session_repo.update_status(session_id, "active")
             session_data.status = "active";
+            become_active = true;
             logger.info("Session status updated to active", {session_id});
         }
         if(!session_data.started_at){
-            const started_at = await this.session_repo.mark_session_started_at(session_id);
-            session_data.scheduled_at = started_at;
+            const started_at = await this.session_repo.mark_session_started_at(session_id, now);
+            session_data.started_at = now;
             logger.info(
                 "Session started_at marked successfully",
                 {started_at}
             )
         }
+        if(!session_data.active_since){
+            await this.session_repo.update(session_id, {
+                active_since: now,
+            })
+            session_data.active_since = now;
+            logger.info(
+                "Session active_since marked successfully",
+                {active_since: session_data.active_since}
+            );
+        }
+        return become_active;
     }
     async get_session(session_id: string) : Promise<SelectSession | undefined>{
         const session = await this.session_repo.get_by_session_id(session_id);
         logger.info("Session fetched from db", {session_id, session});
         return session;
+    }
+
+    async pause_session_if_active(
+        session_id: string,
+        now: Date,
+    ){
+        const session = await this.session_repo.get_by_session_id(session_id);
+        if (!session) {
+            throw new NotFoundError(
+                "Session not found",
+                session_id,
+                "sessions",
+            );
+        }
+        if (session.status !== "active") {
+            return;
+        }
+        if (!session.active_since) {
+            throw new ConfigurationError(
+                "Active session does not have active_since",
+                { session_id },
+            );
+        }
+        const elapsedSeconds = Math.floor(
+            (now.getTime() -
+                session.active_since.getTime()) / 1000,
+        );
+        await this.session_repo.update(session_id, {
+            status: "pause",
+            actual_duration_sec:
+                (session.actual_duration_sec ?? 0) +
+                elapsedSeconds,
+            active_since: null,
+        });
+
+
+    }
+
+    async assert_can_control_session(
+        session_id: string,
+        user_id: string,
+    ){
+        const session =
+            await this.session_repo.get_by_session_id(session_id);
+
+        if (!session) {
+            throw new NotFoundError(
+                "Session not found",
+                session_id,
+                "session",
+            );
+        }
+
+        const participant =
+            await this.session_participant_service
+                .get_participant_by_user_and_session(
+                    user_id,
+                    session_id,
+                );
+        
+        const allowed = (
+            session.session_type === "ai_session"
+                ? participant.role === "candidate"
+                : participant.role === "interviewer"
+        );
+        // requester must be interviewer
+        if (!allowed) {
+            throw new ForbiddenError(
+                "User is not allowed to control this session",
+                session_id,
+            );
+        }
+        return { session, participant }
     }
 }

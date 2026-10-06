@@ -21,4 +21,12 @@ export interface IRealTimeProvider{
         type: K,
         payload: RealtimeProviderEvents[K],
     ) : void
+
+    enableCamera(): Promise<void>;
+    disableCamera(): Promise<void>;
+
+    enableMicrophone(): Promise<void>;
+    disableMicrophone(): Promise<void>;
+
+    startAudio(): Promise<void>
 }

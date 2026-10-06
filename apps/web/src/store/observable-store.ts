@@ -10,16 +10,16 @@ export class ObservableStore<T = unknown>{
 
     getSnapShot = () : T => this.state;
 
-    set(update: T | ((prev: T) => T)) : void{
+    set = (update: T | ((prev: T) => T)) : void => {
         this.state = typeof update === "function" 
                     ? (update as (prev: T) => T)(this.state)
                     : update;
         this.notify();
     }
-    notify(): void{
+    notify = (): void => {
         this.listeners.forEach(listener => listener());
     }
-    subscribe(listener: () => void) : (() => void) {
+    subscribe = (listener: () => void) : (() => void) => {
         this.listeners.add(listener);
 
         return () => this.listeners.delete(listener);

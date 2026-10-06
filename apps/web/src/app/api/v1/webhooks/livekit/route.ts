@@ -23,9 +23,12 @@ export const POST = withRequestContextAndErrorHandling(async (
     if(event.event === "participant_left"){
         logger.info("participant left", {participant: event.participant});
         const { connection_id } = JSON.parse(event.participant?.metadata ?? "{}");
-
+        const session_id = event.room?.name || event.egressInfo?.roomName!;
         const webhook_router = get_realtime_webook_router();
-        webhook_router.handle("participant_left", {connection_id});
+        webhook_router.handle("participant_left", {
+            connection_id,
+            session_id,
+        });
     }
     return new NextResponse(null, {status: 204});
 })

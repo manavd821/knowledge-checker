@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     LIVEKIT_URL : str
     LIVEKIT_API_KEY: str
     LIVEKIT_API_SECRET : str
+    LIVEKIT_AGENT_NAME : str
     CARTESIA_API_KEY: str
     GOOGLE_API_KEY : str
     

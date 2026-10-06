@@ -9,18 +9,71 @@ import { GetUser } from "@/shared/dto/users/get-user.dto";
 import { LiveSessionInfo, LiveSessionInfoSchema } from "@/modules";
 import { ConnectionState } from "@/interview-session/interview-session-types";
 import { ConnectionStateSchema } from "@/interview-session/interview-session-schema";
-import { CreateConnection } from "@/shared/dto/sessions/create-connection.dto";
+import { ResumeSession } from "@/shared/dto/sessions/resume-session.dto";
+import { ProviderEventRouter } from "@/rtc/events/provider-event-router";
+import { handleParticipantJoin } from "@/rtc/events/handlers/participant-joined";
+import { handleParticipantLeave } from "@/rtc/events/handlers/participant-leaved";
+import { handleTrackSubscribed } from "@/rtc/events/handlers/track-subscribed";
+import { handleTrackUnsubscribed } from "@/rtc/events/handlers/track-unsubscribed";
 
 export class InterviewSessionManager{
     constructor(
         private readonly realtime_provider: IRealTimeProvider,
         private readonly message_router: MessageRouter,
         private readonly transcript_store: TranscriptStore,
-        private readonly participant_store: ParticipantStore,
+        private readonly _participant_store: ParticipantStore,
         private readonly connection_service: ConnectionService,
         private readonly session_service: SessionService,
         private readonly user_service: UserService,
-    ){}
+        private readonly provider_event_router: ProviderEventRouter,
+    ){
+        this.registerProviderEvents();
+    }
+
+    registerProviderEvents(){
+        // livekit events related to participants
+        this.provider_event_router.register(
+            "participantJoined", 
+            payload => handleParticipantJoin(
+                payload,
+                this._participant_store,
+            )
+        );
+        this.provider_event_router.register(
+            "participantLeft", 
+            payload => handleParticipantLeave(
+                payload,
+                this._participant_store,
+            )
+        );
+        this.provider_event_router.register(
+            "trackSubscribed", 
+            payload => handleTrackSubscribed(
+                payload,
+                this._participant_store,
+            )
+        );
+        this.provider_event_router.register(
+            "trackUnsubscribed", 
+            payload => handleTrackUnsubscribed(
+                payload,
+                this._participant_store,
+            )
+        );
+        // route to MessageRouter
+        this.realtime_provider.on(
+            "dataReceived",
+            payload => {
+                this.message_router.handle(
+                    payload.message
+                )
+            }
+        )
+    }
+    get participant_store() : ParticipantStore{
+        return this._participant_store;
+    }   
+
     async join(session_id: string) : Promise<{
         connection_state: ConnectionState,
         live_session_info: LiveSessionInfo,
@@ -51,7 +104,31 @@ export class InterviewSessionManager{
         };
     }
     async leave(connection_id: string){
-        this.session_service.leave_session(connection_id);
+        await this.session_service.leave_session(connection_id);
+    }
+    async pause(session_id: string){
+        const data = await this.session_service.pause_session(session_id);
+
+        this.session_service.update_live_session_cache(
+            session_id,
+            {
+                status : data.status,
+            }
+        )
+        // notify all participants that session has paused through data channel
+
+        return data;
+    }
+    async resume(session_id: string): Promise<ResumeSession> {
+        const data = await this.session_service.resume_session(session_id);
+
+        this.session_service.update_live_session_cache(
+            session_id,
+            {
+                status : data.status,
+            }
+        )
+        return data;
     }
     async get_user(user_id: string) : Promise<GetUser>{
         const user = await this.user_service.get_user(user_id);
@@ -79,5 +156,24 @@ export class InterviewSessionManager{
             user, 
             session,
         }
+    }
+
+    async enableCamera() {
+        await this.realtime_provider.enableCamera();
+    }
+
+    async disableCamera() {
+        await this.realtime_provider.disableCamera();
+    }
+
+    async enableMicrophone() {
+        await this.realtime_provider.enableMicrophone();
+    }
+
+    async disableMicrophone() {
+        await this.realtime_provider.disableMicrophone();
+    }
+    async startAudio() {
+        await this.realtime_provider.startAudio();
     }
 }

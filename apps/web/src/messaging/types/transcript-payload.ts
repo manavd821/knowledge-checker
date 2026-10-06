@@ -1,6 +1,8 @@
+import { ParticipantRole } from "@/store/types";
+
 export type TranscriptPayload = {
-    participantId : string;
-    text: string;
-    speaker: "candidate" | "interviewer" | "ai";
-    final: boolean;
-}
+    session_id: string;
+    participant_id: string;
+    transcript: string;
+    role: ParticipantRole;
+};
