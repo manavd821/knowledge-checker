@@ -37,18 +37,20 @@ class RedisStreamWorker:
             },
         )
         
-        await self.run()
+        await self.consume()
         
-    async def run(self):
+    async def consume(self):
         while self._running:
             
             messages = await self._stream.read_group(
                 key=self._stream_key,
                 group=self._group,
                 consumer=self._consumer,
+                count=10,
+                block=5000,
             )
             
-            for _, entries in messages:
+            for stream_name, entries in messages:
                 for message_id, fields in entries:
                     await self._process_message(
                         message_id=message_id,

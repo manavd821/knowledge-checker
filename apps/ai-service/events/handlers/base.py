@@ -18,3 +18,6 @@ class IEventHandler(ABC):
         payload: BaseModel,
     ) -> None:
         raise NotImplementedError
+    
+    async def shutdown(self) -> None:
+        return None

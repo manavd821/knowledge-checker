@@ -74,3 +74,16 @@ class EventBus:
     
             for handler in handlers:
                 await handler.handle(event, payload)
+                
+    async def shutdown(self):
+        handlers : set[IEventHandler] = set()
+        
+        for h in self._handlers.values():
+            handlers.update(h)
+            
+        if not handlers:
+            return
+        
+        await asyncio.gather(
+            *(handler.shutdown() for handler in handlers)
+        )

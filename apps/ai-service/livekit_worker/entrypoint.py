@@ -11,6 +11,7 @@ from livekit.plugins import (
     cartesia,
 )
 from livekit.rtc import RemoteParticipant
+from interview.factory import get_interview_coordinator
 from lib.logging.logging import get_logger
 from livekit_worker.agent import InterviewAgent
 from livekit_worker.lifespan import clean_up
@@ -51,12 +52,13 @@ async def entrypoint(ctx : JobContext):
             turn_detection=inference.TurnDetector(),
             endpointing={
                 "mode":"dynamic",
-                "min_delay":2,
-                "max_delay": 4
+                "min_delay":4,
+                "max_delay": 6
             }
         )
     )
     message_publisher = RealtimeMessagePublisher(ctx.room)
+    coordinator = get_interview_coordinator()
     await session.start(
         room=ctx.room,
         agent=InterviewAgent(
@@ -64,5 +66,6 @@ async def entrypoint(ctx : JobContext):
             metadata=metadata,
             participant_id=UUID(participant_id),
             message_publisher=message_publisher,
+            coordinator=coordinator,
         ),
     )

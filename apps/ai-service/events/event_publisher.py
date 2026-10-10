@@ -19,3 +19,9 @@ class EventPublisher:
             raise RuntimeError("Event bus not initialized")
 
         await self._bus.publish(event, payload)
+        
+    async def shutdown(self):
+        if self._bus is None:
+            return
+        
+        await self._bus.shutdown()

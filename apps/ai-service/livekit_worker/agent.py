@@ -6,6 +6,7 @@ from livekit.agents import (
     ChatMessage,
     StopResponse,
 )
+from interview.coordinator import InterviewCoordinator
 from interview.models import UserTurnCompletedPayload
 from lib.logging.logging import get_logger
 from livekit_worker.interview_agent_registry import InterviewAgentRegistry
@@ -22,12 +23,14 @@ class InterviewAgent(Agent):
         metadata: ParticipantMetadata,
         participant_id: UUID,
         message_publisher: RealtimeMessagePublisher,
+        coordinator: InterviewCoordinator,
     ):
         super().__init__(instructions="")
         self.session_id = session_id
         self._room_metadata = metadata
         self.participant_id = participant_id
         self._message_publisher = message_publisher
+        self.coordinator = coordinator
     
     async def on_enter(self) -> None:
         InterviewAgentRegistry.register(
@@ -45,9 +48,9 @@ class InterviewAgent(Agent):
             payload= payload.model_dump(mode="json")
         ))
         logger.info("Message sent succefully")
+        
     async def on_exit(self) -> None:
         InterviewAgentRegistry.remove(self.session_id)
-    
     
     async def on_user_turn_completed(
         self, 
@@ -71,8 +74,7 @@ class InterviewAgent(Agent):
             payload= payload.model_dump(mode="json")
         ))
         
-        coordinator = get_interview_coordinator()
-        await coordinator.on_user_turn_complete(UserTurnCompletedPayload(
+        await self.coordinator.on_user_turn_complete(UserTurnCompletedPayload(
             transcript=transcript,
             session_id=self.session_id,
             participant_id=self.participant_id,

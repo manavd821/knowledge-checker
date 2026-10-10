@@ -5,6 +5,7 @@ from config.settings import get_settings
 from functools import lru_cache
 
 from db.factory import get_database
+from events.factory import shutdown_event_bus
 from lib.logging.logging import configure_logging
 from lib.redis.client import get_redis_client
 from lib.redis.factory import get_cache_redis_cloud
@@ -17,4 +18,7 @@ def init_infra():
 
 async def clean_up():
     redis = get_redis_client()
+    
+    await shutdown_event_bus()
+    
     await redis.aclose() 

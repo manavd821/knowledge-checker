@@ -15,7 +15,7 @@ def register_question_generation_config(resolver: LLMResolver):
             Tasks.QUESTION_GEN,
             ExecutionProfile.LOW_LATENCY,
             TaskConfig(
-                temperature=0.7,
+                temperature=0.5,
                 max_tokens=800,
                 llm_provider=LLMModelProvider.GOOGLE_GENAI,
                 llm_model=LLMModel.GEMINI_3_1_FLASH_LITE,
@@ -26,7 +26,7 @@ def register_question_generation_config(resolver: LLMResolver):
         Tasks.QUESTION_GEN,
         ExecutionProfile.HIGH_QUALITY,
         TaskConfig(
-            temperature=0.7,
+            temperature=0.5,
             max_tokens=1200,
             llm_provider=LLMModelProvider.GOOGLE_GENAI,
             llm_model=LLMModel.GEMINI_2_5_PRO,
@@ -37,7 +37,7 @@ def register_question_generation_config(resolver: LLMResolver):
         Tasks.QUESTION_GEN,
         ExecutionProfile.LOW_COST,
         TaskConfig(
-            temperature=0.7,
+            temperature=0.5,
             max_tokens=800,
             llm_provider=LLMModelProvider.GOOGLE_GENAI,
             llm_model=LLMModel.GEMINI_3_1_FLASH_LITE,
@@ -48,7 +48,7 @@ def register_question_generation_config(resolver: LLMResolver):
         Tasks.QUESTION_GEN,
         ExecutionProfile.BALANCED,
         TaskConfig(
-            temperature=0.7,
+            temperature=0.5,
             max_tokens=1000,
             llm_provider=LLMModelProvider.GOOGLE_GENAI,
             llm_model=LLMModel.GEMINI_3_5_FLASH_LITE,

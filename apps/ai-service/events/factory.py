@@ -14,9 +14,11 @@ from events.event_publisher import EventPublisher
 def get_event_registry() -> EventRegistry:
     return EventRegistry()
 
+_built_event_bus: EventBus | None = None
 
 @lru_cache
 def get_event_bus():
+    global _built_event_bus
     bus = EventBus(get_event_registry())
     
     stream = get_stream_redis_cloud()
@@ -59,9 +61,14 @@ def get_event_bus():
         LiveSessionEvent.RUNTIME_CONTEXT_UPDATED,
         conversation_event_publisher,
     )
-    
+    _built_event_bus = bus
     return bus
 
 def get_event_publisher():
     bus = get_event_bus()
     return EventPublisher(bus)
+
+async def shutdown_event_bus():
+    publisher = get_event_publisher()
+    
+    await publisher.shutdown()

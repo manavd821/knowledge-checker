@@ -49,10 +49,29 @@ class SessionProcessor(IEventHandler):
             UUID,
             SessionExecutionState,
         ] = {}
+        self._tasks : set[asyncio.Task[None]] = set()
+        self._closing = False
         
     @property
     def policy(self) -> HandlerPolicy:
         return HandlerPolicy.CRITICAL
+    
+    async def shutdown(self) -> None:
+        self._closing = True
+        
+        while self._tasks:
+            tasks = list(self._tasks)
+            
+            results = await asyncio.gather(
+                *tasks,
+                return_exceptions=True
+            )
+            for result in results:
+                if isinstance(result, BaseException):
+                    logger.error(
+                        "Task failed during processor shutdown",
+                        error=result,
+                    )
     
     async def handle(
         self,
@@ -72,6 +91,10 @@ class SessionProcessor(IEventHandler):
         await self._enqueue(payload)
     
     async def _enqueue(self, payload: CandidateTurnCompleted):
+        if self._closing:
+            raise RuntimeError(
+                "SessionProcessor is shutting down"
+            )
         state = self._sessions.setdefault(
             payload.session_id,
             SessionExecutionState()
@@ -81,10 +104,28 @@ class SessionProcessor(IEventHandler):
             return
         
         state.running = True
-        asyncio.create_task(
-            self._process_session(payload.session_id)
+        task = asyncio.create_task(
+            self._process_session(payload.session_id),
+            name=f"session-processor-{payload.session_id}"
         )
+        self._tasks.add(task)
+        task.add_done_callback(self._on_task_done)
     
+    async def _on_task_done(
+        self,
+        task: asyncio.Task[None],
+    ): 
+        self._tasks.discard(task)
+        if task.cancelled():
+            return
+        
+        error = task.exception()
+        if error is not None:
+            logger.error(
+                "Session processing task failed",
+                error=error,
+            )
+        
     async def _process_session(self, session_id: UUID):
         state = self._sessions[session_id]
         try:
